@@ -1,6 +1,8 @@
 <header class="h-16 bg-white border-b flex items-center justify-between px-6">
-    <!-- Dynamic Title -->
-    <h2 class="text-lg font-semibold text-slate-900">{{ pageTitle }}</h2>
+    <!-- Welcome Message -->
+    <h2 class="text-lg font-semibold text-slate-900" *ngIf="userName$ | async as userName">
+        Bienvenido <span class="text-primary">{{ userName }}</span>
+    </h2>
 
     <!-- User + Logout -->
     <div class="flex items-center gap-4">

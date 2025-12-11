@@ -1,0 +1,61 @@
+<!-- Header -->
+<h1 class="text-2xl font-bold mb-1">Reservas</h1>
+<p class="text-sm text-slate-600 mb-6">{{ eventName }} - {{ functionDate }}</p>
+
+<!-- Filters -->
+<div class="flex flex-wrap gap-2 mb-6">
+    <button *ngFor="let status of statusFilters" (click)="filterByStatus(status)"
+        [class.bg-slate-900]="selectedStatus === status" [class.text-white]="selectedStatus === status"
+        [class.bg-white]="selectedStatus !== status" [class.text-slate-600]="selectedStatus !== status"
+        class="px-4 py-2 rounded-full text-sm font-medium border border-slate-200 hover:bg-slate-50 transition-colors">
+        {{ status }}
+    </button>
+</div>
+
+<!-- Empty State -->
+<div *ngIf="(filteredBookings$ | async)?.length === 0"
+    class="bg-white p-10 rounded-xl shadow-sm text-center text-slate-500">
+    No hay reservas. <br> Aún no se han realizado reservas para esta función.
+</div>
+
+<!-- Bookings Table -->
+<div *ngIf="(filteredBookings$ | async)?.length" class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <table class="min-w-full">
+        <thead class="bg-slate-100 text-slate-600 text-sm">
+            <tr>
+                <th class="px-4 py-3 text-left">Cliente</th>
+                <th class="px-4 py-3 text-left">Contacto</th>
+                <th class="px-4 py-3 text-left">Cantidad</th>
+                <th class="px-4 py-3 text-left">Estado</th>
+                <th class="px-4 py-3 text-right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y text-sm">
+            <tr *ngFor="let booking of filteredBookings$ | async" class="hover:bg-slate-50">
+                <td class="px-4 py-3 font-medium text-slate-900">{{ booking.customerName }}</td>
+                <td class="px-4 py-3 text-slate-600">
+                    <div>{{ booking.customerPhone }}</div>
+                    <div class="text-xs">{{ booking.customerEmail }}</div>
+                </td>
+                <td class="px-4 py-3 text-slate-900">{{ booking.quantity }}</td>
+                <td class="px-4 py-3">
+                    <app-status-badge [status]="booking.status"></app-status-badge>
+                </td>
+                <td class="px-4 py-3 text-right space-x-2">
+                    <button *ngIf="booking.status === 'pending_payment'" (click)="markAsPaid(booking.bookingId)"
+                        class="bg-slate-900 text-white px-3 py-1 rounded-full text-sm">
+                        Marcar Pagado
+                    </button>
+                    <button *ngIf="booking.status === 'payment_received'" (click)="checkIn(booking.bookingId)"
+                        class="bg-slate-900 text-white px-3 py-1 rounded-full text-sm">
+                        Check-in
+                    </button>
+                    <button *ngIf="booking.status !== 'cancelled'" (click)="cancelBooking(booking.bookingId)"
+                        class="text-slate-600 hover:text-slate-900 text-sm font-medium">
+                        Cancelar
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

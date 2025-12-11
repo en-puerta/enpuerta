@@ -1,0 +1,134 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-gradient-to-b from-background to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto space-y-8">
+
+        <!-- Header / Title -->
+        <div class="text-center">
+            <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Confirmá tu reserva</h2>
+            <p class="mt-2 text-slate-600">Completá tus datos para asegurar tus lugares.</p>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage"
+            class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+            <span class="font-bold">Error:</span>
+            <span>{{ errorMessage }}</span>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white py-8 px-6 shadow-xl rounded-2xl border border-slate-100">
+
+            <!-- ============================================ -->
+            <!-- LOADING STATE: Booking Form Data            -->
+            <!-- Buscar por: "LOADING_BOOKING_FORM"          -->
+            <!-- ============================================ -->
+            <div *ngIf="loading">
+                <app-loading-spinner size="md" message="Cargando información..."></app-loading-spinner>
+            </div>
+
+            <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" *ngIf="!loading && event && function"
+                class="space-y-6">
+
+                <!-- Event Summary Mini -->
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 mb-6">
+                    <h3 class="font-bold text-slate-900">{{ event.nameInternal }}</h3>
+                    <p class="text-sm text-slate-600">
+                        {{ function.dateTime | date: 'EEEE d MMMM, y - HH:mm' }} hs
+                    </p>
+                    <p class="text-xs text-amber-600 font-semibold mt-1">
+                        {{ availableCapacity }} lugares disponibles
+                    </p>
+                </div>
+
+                <!-- Name -->
+                <div>
+                    <label for="customerName" class="block text-sm font-medium text-slate-700">Nombre Completo</label>
+                    <input type="text" formControlName="customerName" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+          focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                    <p *ngIf="bookingForm.get('customerName')?.touched && bookingForm.get('customerName')?.hasError('required')"
+                        class="mt-1 text-xs text-red-500">
+                        Es necesario tu nombre.
+                    </p>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="customerPhone" class="block text-sm font-medium text-slate-700">Teléfono</label>
+                        <input type="tel" formControlName="customerPhone" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+            focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                    </div>
+                    <div>
+                        <label for="customerEmail" class="block text-sm font-medium text-slate-700">Email</label>
+                        <input type="email" formControlName="customerEmail" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+            focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                    </div>
+                </div>
+                <p *ngIf="bookingForm.hasError('contactRequired') && bookingForm.touched" class="text-xs text-red-500">
+                    Ingresá al menos un medio de contacto (teléfono o email).
+                </p>
+
+                <!-- Quantity -->
+                <div>
+                    <label for="quantity" class="block text-sm font-medium text-slate-700">Cantidad de entradas</label>
+                    <select formControlName="quantity"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option *ngFor="let q of [1,2,3,4,5,6,7,8,9,10]" [value]="q" [disabled]="q > availableCapacity">
+                            {{ q }} entrada{{ q > 1 ? 's' : '' }}
+                        </option>
+                    </select>
+                    <!-- Price Calc -->
+                    <div class="mt-2 flex justify-between items-center text-sm">
+                        <span class="text-slate-500">Precio por entrada: ${{ function.price }}</span>
+                        <span class="font-bold text-slate-900 text-lg">
+                            Total: ${{ (function.price * bookingForm.get('quantity')?.value) }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="acceptTerms" formControlName="acceptTerms" type="checkbox"
+                            class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="acceptTerms" class="font-medium text-slate-700">Acepto los términos y
+                            condiciones</label>
+                        <p *ngIf="bookingForm.get('acceptTerms')?.touched && bookingForm.get('acceptTerms')?.hasError('requiredTrue')"
+                            class="text-xs text-red-500">
+                            Debés aceptar los términos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" [disabled]="bookingForm.invalid || submitting"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <span *ngIf="submitting" class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        Procesando...
+                    </span>
+                    <span *ngIf="!submitting">Confirmar Reserva</span>
+                </button>
+
+            </form>
+        </div>
+
+        <div class="text-center">
+            <a [routerLink]="['/e', event?.aliasPublic]"
+                class="text-sm font-medium text-primary hover:text-primary-hover cursor-pointer">
+                ← Volver al evento
+            </a>
+        </div>
+
+    </div>
+</div>

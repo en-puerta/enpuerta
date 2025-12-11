@@ -1,0 +1,57 @@
+/* EnPuerta Brand Colors */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Brand Colors */
+        --color-primary: 43 107 111;
+        /* Teal #2B6B6F */
+        --color-primary-hover: 35 86 89;
+        /* Darker teal */
+        --color-primary-light: 52 128 133;
+        /* Lighter teal */
+        --color-background: 234 228 217;
+        /* Beige #EAE4D9 */
+        --color-background-dark: 220 212 199;
+        /* Darker beige */
+        --color-surface: 255 255 255;
+        /* White */
+        --color-accent: 191 147 91;
+        /* Warm accent #BF935B */
+    }
+
+    body {
+        @apply bg-[rgb(var(--color-background))] text-slate-900;
+    }
+}
+
+@layer components {
+
+    /* Primary Button */
+    .btn-primary {
+        @apply bg-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary-hover))] text-white px-4 py-2 rounded-full transition-colors;
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+        @apply border-2 border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-white px-4 py-2 rounded-full transition-colors;
+    }
+
+    /* Card */
+    .card {
+        @apply bg-white rounded-xl shadow-sm p-6;
+    }
+}
+
+/* Global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}

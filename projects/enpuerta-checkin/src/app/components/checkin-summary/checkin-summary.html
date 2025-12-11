@@ -1,0 +1,69 @@
+<div class="space-y-6">
+    <!-- Function Info -->
+    <section class="bg-white rounded-xl shadow-sm p-4">
+        <h2 class="text-lg font-semibold" *ngIf="event">{{ event.nameInternal }}</h2>
+        <p class="text-sm text-slate-600" *ngIf="function">
+            Resumen de función · {{ function.dateTime?.toDate ? (function.dateTime.toDate() | date:'EEEE d MMM, y ·
+            HH:mm') : (function.dateTime | date:'EEEE d MMM, y · HH:mm') }} hs
+        </p>
+        <a *ngIf="functionId" [routerLink]="['/checkin', functionId]"
+            class="text-sm text-amber-600 hover:text-amber-700 font-medium mt-2 inline-block">
+            ← Volver al escáner
+        </a>
+    </section>
+
+    <!-- Metrics -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4" *ngIf="stats$ | async as stats">
+        <div class="bg-white rounded-xl shadow-sm p-4">
+            <p class="text-xs text-slate-500 uppercase">Reservas</p>
+            <p class="text-2xl font-bold text-slate-900">{{ stats.totalReservas }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4">
+            <p class="text-xs text-slate-500 uppercase">Pagos confirmados</p>
+            <p class="text-2xl font-bold text-emerald-700">{{ stats.pagosConfirmados }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4">
+            <p class="text-xs text-slate-500 uppercase">Presentes</p>
+            <p class="text-2xl font-bold text-emerald-700">{{ stats.presentes }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4">
+            <p class="text-xs text-slate-500 uppercase">Faltantes</p>
+            <p class="text-2xl font-bold text-amber-600">{{ stats.faltantes }}</p>
+        </div>
+    </section>
+
+    <!-- Bookings List -->
+    <section class="bg-white rounded-xl shadow-sm p-4">
+        <h3 class="font-semibold mb-3 text-sm text-slate-800">Listado de asistentes</h3>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="border-b text-slate-500">
+                    <tr>
+                        <th class="text-left py-2 pr-4">Nombre</th>
+                        <th class="text-left py-2 pr-4">Entradas</th>
+                        <th class="text-left py-2 pr-4">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    <tr *ngFor="let booking of bookings$ | async" class="hover:bg-slate-50">
+                        <td class="py-2 pr-4 font-medium text-slate-900">{{ booking.customerName }}</td>
+                        <td class="py-2 pr-4 text-slate-600">{{ booking.quantity }}</td>
+                        <td class="py-2 pr-4">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+                'bg-slate-100 text-slate-700': booking.status === 'pending_payment',
+                'bg-emerald-50 text-emerald-700': booking.status === 'payment_received',
+                'bg-green-600 text-white': booking.status === 'checked_in',
+                'bg-red-50 text-red-700': booking.status === 'cancelled'
+              }">
+                                {{ booking.status === 'checked_in' ? 'ADENTRO' :
+                                booking.status === 'payment_received' ? 'Pagado' :
+                                booking.status === 'pending_payment' ? 'Pendiente' : 'Cancelado' }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

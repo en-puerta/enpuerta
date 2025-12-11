@@ -1,0 +1,14 @@
+<!-- ============================================ -->
+<!-- LOADING SPINNER COMPONENT                   -->
+<!-- Buscar por: "LOADING_SPINNER_COMPONENT"     -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center justify-center py-8">
+    <div class="loading-spinner" [ngClass]="{
+        'loading-spinner-sm': size === 'sm',
+        'loading-spinner-md': size === 'md',
+        'loading-spinner-lg': size === 'lg'
+    }">
+        <img src="assets/images/logo-icon.jpg" alt="Cargando..." class="animate-spin">
+    </div>
+    <p *ngIf="message" class="text-slate-500 text-sm mt-3">{{ message }}</p>
+</div>

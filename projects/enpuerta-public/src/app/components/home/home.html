@@ -1,0 +1,77 @@
+<app-header></app-header>
+
+<main class="min-h-screen bg-background pb-16">
+    <!-- Hero -->
+    <section class="bg-gradient-to-b from-white to-background border-b border-slate-200 pt-12 pb-2 px-6">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-3xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
+                Encontrá tu próxima salida en vivo
+            </h1>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                Teatro, stand-up, música y más. Reservá tu lugar en segundos.
+            </p>
+        </div>
+    </section>
+
+    <div class="max-w-6xl mx-auto px-6 space-y-6 mt-2">
+        <!-- Featured Events (not affected by filters) -->
+        <section *ngIf="(featuredEvents$ | async)?.length">
+            <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <span class="text-amber-500">★</span> Destacados EnPuerta
+            </h2>
+            <app-event-list [events]="(featuredEvents$ | async) || []" [carousel]="true"></app-event-list>
+        </section>
+
+        <!-- Category Filters -->
+        <section class="border-t border-slate-200 pt-2">
+            <div class="flex flex-wrap justify-center gap-3 mb-4">
+                <button *ngFor="let filter of filters" (click)="setFilter(filter)"
+                    class="px-5 py-2.5 rounded-full border text-sm font-medium transition-all duration-200"
+                    [ngClass]="selectedFilter === filter ? 'bg-primary text-white border-primary ring-2 ring-primary ring-offset-2' : 'bg-white text-slate-600 border-slate-300 hover:bg-background hover:border-primary/50'">
+                    {{ filter }}
+                </button>
+            </div>
+        </section>
+
+        <!-- All Events (with filters and sorting) -->
+        <section>
+            <!-- Sort Selector -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-slate-900">Todos los eventos</h2>
+
+                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+                    <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+                    </svg>
+                    <select [(ngModel)]="selectedSort" (change)="setSort(selectedSort)"
+                        class="text-sm font-medium text-slate-700 bg-transparent border-none focus:outline-none focus:ring-0 cursor-pointer pr-8">
+                        <option *ngFor="let option of sortOptions" [value]="option.value">
+                            {{ option.label }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- LOADING STATE: Event List                   -->
+            <!-- Buscar por: "LOADING_EVENT_LIST"            -->
+            <!-- ============================================ -->
+            <div *ngIf="!(filteredEvents$ | async)">
+                <app-loading-spinner size="lg" message="Cargando eventos..."></app-loading-spinner>
+            </div>
+
+            <!-- Event List -->
+            <app-event-list *ngIf="filteredEvents$ | async as events" [events]="events"></app-event-list>
+
+            <!-- TODO: PAGINATION - Preparado para implementar paginado -->
+            <!-- Buscar por: "TODO_PAGINATION" -->
+            <!-- Cuando tengas +20-30 eventos, implementar:
+                 1. Agregar pageSize y currentPage en home.ts
+                 2. Modificar filteredEvents$ para paginar
+                 3. Agregar botones de navegación aquí
+                 4. Considerar scroll infinito como alternativa
+            -->
+        </section>
+    </div>
+</main>

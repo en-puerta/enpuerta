@@ -1,0 +1,140 @@
+<div class="space-y-4">
+    <!-- Function Info -->
+    <section class="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-1">
+        <h2 class="text-lg font-semibold" *ngIf="event">{{ event.nameInternal }}</h2>
+        <p class="text-sm text-slate-600" *ngIf="function">
+            Función: {{ function.dateTime?.toDate ? (function.dateTime.toDate() | date:'EEEE d MMM, y · HH:mm') :
+            (function.dateTime | date:'EEEE d MMM, y · HH:mm') }} hs
+        </p>
+        <p class="text-xs text-slate-500" *ngIf="functionId">
+            Function ID: {{ functionId }}
+        </p>
+        <a *ngIf="functionId" [routerLink]="['/checkin', functionId, 'summary']"
+            class="text-sm text-amber-600 hover:text-amber-700 font-medium mt-2">
+            Ver resumen →
+        </a>
+    </section>
+
+    <!-- Scanner and Result -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- Scanner -->
+        <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-3">
+            <h3 class="font-semibold text-sm text-slate-800 mb-1">Escaneá el código QR</h3>
+
+            <!-- Scanner View -->
+            <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden relative">
+                <zxing-scanner *ngIf="enableScanner" [formats]="allowedFormats" (scanSuccess)="onCodeResult($event)"
+                    class="w-full h-full object-cover">
+                </zxing-scanner>
+
+                <!-- Searching Overlay -->
+                <div *ngIf="!enableScanner && searchStatus === 'searching'"
+                    class="absolute inset-0 flex items-center justify-center bg-slate-900 bg-opacity-90">
+                    <div class="text-center text-white">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-2"></div>
+                        <p class="text-sm">Buscando reserva...</p>
+                    </div>
+                </div>
+
+                <!-- Not Found Overlay -->
+                <div *ngIf="searchStatus === 'not_found'"
+                    class="absolute inset-0 flex items-center justify-center bg-slate-900 bg-opacity-90">
+                    <div class="text-center text-white p-4">
+                        <span class="text-4xl block mb-2">❌</span>
+                        <h3 class="text-xl font-bold text-red-400">No Encontrada</h3>
+                        <p class="text-sm text-slate-300 mt-2">No existe reserva para este código.</p>
+                        <button (click)="resetScan()"
+                            class="mt-4 px-6 py-2 bg-slate-700 text-white rounded-full hover:bg-slate-600 text-sm">
+                            Escanear otro
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error Overlay -->
+                <div *ngIf="searchStatus === 'error'"
+                    class="absolute inset-0 flex items-center justify-center bg-slate-900 bg-opacity-90">
+                    <div class="text-center text-white p-4">
+                        <span class="text-4xl block mb-2">⚠</span>
+                        <p class="text-sm">Error de conexión</p>
+                        <button (click)="resetScan()"
+                            class="mt-4 px-6 py-2 bg-slate-700 text-white rounded-full hover:bg-slate-600 text-sm">
+                            Reintentar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-500">
+                Apuntá la cámara al código QR de la entrada. El resultado se mostrará automáticamente.
+            </p>
+        </div>
+
+        <!-- Result Card -->
+        <div class="bg-white rounded-xl shadow-sm p-4 space-y-3">
+            <h3 class="font-semibold text-sm text-slate-800 mb-2">Último escaneo</h3>
+
+            <!-- No scan yet -->
+            <div *ngIf="searchStatus === 'idle'" class="text-center py-8 text-slate-400">
+                <p class="text-sm">Esperando escaneo...</p>
+            </div>
+
+            <!-- Booking Found -->
+            <div *ngIf="searchStatus === 'found' && foundBooking" class="space-y-3">
+                <div class="space-y-1">
+                    <p class="text-sm font-medium text-slate-900">{{ foundBooking.customerName }}</p>
+                    <p class="text-xs text-slate-600">
+                        Entradas: {{ foundBooking.quantity }}
+                    </p>
+                    <p class="text-xs text-slate-500">
+                        Tel: {{ foundBooking.customerPhone }}
+                    </p>
+                    <p class="text-xs text-slate-500">
+                        Email: {{ foundBooking.customerEmail }}
+                    </p>
+                </div>
+
+                <!-- Status Badge -->
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+          'bg-emerald-50 text-emerald-700': foundBooking.status === 'payment_received',
+          'bg-green-600 text-white': foundBooking.status === 'checked_in',
+          'bg-slate-100 text-slate-700': foundBooking.status === 'pending_payment',
+          'bg-red-50 text-red-700': foundBooking.status === 'cancelled'
+        }">
+                    {{ foundBooking.status === 'checked_in' ? 'Ya ingresó' :
+                    foundBooking.status === 'payment_received' ? 'Pagado' :
+                    foundBooking.status === 'pending_payment' ? 'Pendiente' : 'Cancelado' }}
+                </span>
+
+                <!-- Feedback Message -->
+                <div *ngIf="feedbackMessage" class="text-center text-emerald-600 font-medium text-sm animate-pulse">
+                    {{ feedbackMessage }}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-2 mt-3">
+                    <button *ngIf="foundBooking.status !== 'checked_in' && foundBooking.status !== 'cancelled'"
+                        (click)="checkIn()"
+                        class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-full text-sm font-medium transition-colors">
+                        Marcar check-in
+                    </button>
+
+                    <button *ngIf="foundBooking.status === 'checked_in'" disabled
+                        class="w-full bg-green-600 text-white py-2 rounded-full text-sm font-medium opacity-75 cursor-not-allowed">
+                        Ya ingresó
+                    </button>
+
+                    <button *ngIf="foundBooking.status === 'cancelled'" disabled
+                        class="w-full bg-red-100 text-red-700 py-2 rounded-full text-sm font-medium opacity-75 cursor-not-allowed">
+                        Cancelada
+                    </button>
+
+                    <button (click)="resetScan()"
+                        class="w-full bg-white border border-slate-300 text-slate-700 py-2 rounded-full text-sm hover:bg-slate-50 transition-colors">
+                        Limpiar resultado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

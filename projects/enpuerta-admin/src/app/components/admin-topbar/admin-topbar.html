@@ -1,0 +1,14 @@
+<header class="h-16 bg-white border-b flex items-center justify-between px-6">
+    <!-- Dynamic Title -->
+    <h2 class="text-lg font-semibold text-slate-900">{{ pageTitle }}</h2>
+
+    <!-- User + Logout -->
+    <div class="flex items-center gap-4">
+        <span class="text-sm text-slate-600" *ngIf="userEmail$ | async as email">
+            {{ email }}
+        </span>
+        <button (click)="logout()" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
+            Salir
+        </button>
+    </div>
+</header>

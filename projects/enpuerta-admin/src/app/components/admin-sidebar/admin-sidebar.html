@@ -1,0 +1,21 @@
+<aside class="hidden md:flex md:flex-col w-64 bg-white border-r p-6 space-y-6">
+    <!-- Logo + EnPuerta Admin -->
+    <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+            EP
+        </div>
+        <span class="text-xl font-semibold">EnPuerta · Admin</span>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="space-y-2">
+        <a routerLink="/events" routerLinkActive="bg-slate-100 text-slate-900"
+            class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
+            Eventos
+        </a>
+        <a routerLink="/settings" routerLinkActive="bg-slate-100 text-slate-900"
+            class="block px-4 py-2 rounded-lg text-slate-400 cursor-not-allowed">
+            Configuración
+        </a>
+    </nav>
+</aside>

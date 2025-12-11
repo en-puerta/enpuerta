@@ -1,0 +1,72 @@
+<div class="min-h-screen bg-background p-6">
+    <!-- Header -->
+    <h1 class="text-2xl font-bold mb-1">Funciones</h1>
+    <p class="text-sm text-slate-600 mb-6">{{ eventName }}</p>
+
+    <!-- New Function Button -->
+    <div class="flex justify-end mb-6">
+        <button (click)="goToNewFunction()" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-full">
+            + Nueva función
+        </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="(functions$ | async)?.length === 0"
+        class="bg-white p-10 rounded-xl shadow-sm text-center text-slate-500">
+        No hay funciones. <br> Comenzá creando la primera función.
+        <div class="mt-4">
+            <button (click)="goToNewFunction()" class="bg-slate-900 text-white px-4 py-2 rounded-full">
+                + Crear primera función
+            </button>
+        </div>
+    </div>
+
+    <!-- Functions Table -->
+    <div *ngIf="(functions$ | async)?.length" class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <table class="min-w-full">
+            <thead class="bg-slate-100 text-slate-600 text-sm">
+                <tr>
+                    <th class="px-4 py-3 text-left">Fecha/Hora</th>
+                    <th class="px-4 py-3 text-left">Capacidad</th>
+                    <th class="px-4 py-3 text-left">Precio</th>
+                    <th class="px-4 py-3 text-left">Estado</th>
+                    <th class="px-4 py-3 text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y text-sm">
+                <tr *ngFor="let func of functions$ | async" class="hover:bg-slate-50">
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-slate-900">
+                            {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'d MMM, y') : (func.dateTime |
+                            date:'d
+                            MMM, y') }}
+                        </div>
+                        <div class="text-slate-600">
+                            {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'HH:mm') : (func.dateTime |
+                            date:'HH:mm') }} hs
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-slate-600">{{ func.capacity }}</td>
+                    <td class="px-4 py-3 font-medium text-slate-900">${{ func.price }}</td>
+                    <td class="px-4 py-3">
+                        <app-status-badge [status]="func.status"></app-status-badge>
+                    </td>
+                    <td class="px-4 py-3 text-right space-x-2">
+                        <button (click)="editFunction(func.functionId)"
+                            class="text-slate-600 hover:text-slate-900 text-sm font-medium">
+                            Editar
+                        </button>
+                        <button (click)="viewBookings(func.functionId)"
+                            class="text-amber-600 hover:text-amber-700 text-sm font-medium">
+                            Reservas
+                        </button>
+                        <button (click)="viewLive(func.functionId)"
+                            class="text-slate-900 hover:text-slate-700 text-sm font-medium">
+                            En Vivo
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

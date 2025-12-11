@@ -1,0 +1,77 @@
+<div class="min-h-screen bg-background p-6">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Eventos</h1>
+      <p class="text-sm text-slate-600">Gestioná tus obras, shows y actividades.</p>
+    </div>
+
+    <button (click)="goToNewEvent()" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-full">
+      + Nuevo evento
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-2 mb-6">
+    <button *ngFor="let type of eventTypes" (click)="filterByType(type)" [class.bg-slate-900]="selectedType === type"
+      [class.text-white]="selectedType === type" [class.bg-white]="selectedType !== type"
+      [class.text-slate-600]="selectedType !== type"
+      class="px-4 py-2 rounded-full text-sm font-medium border border-slate-200 hover:bg-slate-50 transition-colors">
+      {{ type }}
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="(filteredEvents$ | async)?.length === 0"
+    class="bg-white p-10 rounded-xl shadow-sm text-center text-slate-500">
+    No hay eventos. <br> Comenzá creando tu primer evento.
+    <div class="mt-4">
+      <button (click)="goToNewEvent()" class="bg-slate-900 text-white px-4 py-2 rounded-full">
+        + Crear primer evento
+      </button>
+    </div>
+  </div>
+
+  <!-- Events Table -->
+  <div *ngIf="(filteredEvents$ | async)?.length" class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <table class="min-w-full">
+      <thead class="bg-slate-100 text-slate-600 text-sm">
+        <tr>
+          <th class="px-4 py-3 text-left">Nombre</th>
+          <th class="px-4 py-3 text-left">Alias</th>
+          <th class="px-4 py-3 text-left">Tipo</th>
+          <th class="px-4 py-3 text-left">Estado</th>
+          <th class="px-4 py-3 text-left">Destacado</th>
+          <th class="px-4 py-3 text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y text-sm">
+        <tr *ngFor="let event of filteredEvents$ | async" class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-medium text-slate-900">{{ event.nameInternal }}</td>
+          <td class="px-4 py-3 text-slate-600">{{ event.aliasPublic }}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs uppercase">
+              {{ event.eventType }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <app-status-badge [status]="event.status"></app-status-badge>
+          </td>
+          <td class="px-4 py-3">
+            <span *ngIf="event.isSponsored" class="text-amber-500">★</span>
+            <span *ngIf="!event.isSponsored" class="text-slate-300">—</span>
+          </td>
+          <td class="px-4 py-3 text-right space-x-2">
+            <button (click)="editEvent(event.eventId)" class="text-slate-600 hover:text-slate-900 text-sm font-medium">
+              Editar
+            </button>
+            <button (click)="viewFunctions(event.eventId)"
+              class="text-amber-600 hover:text-amber-700 text-sm font-medium">
+              Funciones
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

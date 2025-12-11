@@ -1,0 +1,29 @@
+<div class="space-y-4">
+    <div *ngFor="let func of functions"
+        class="bg-white rounded-lg border border-slate-200 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-amber-500 hover:shadow-md transition-all duration-300">
+        <!-- Info -->
+        <div>
+            <h4 class="text-lg font-bold text-slate-900">
+                {{ func.dateTime | date: 'EEEE d MMMM, y' | titlecase }}
+            </h4>
+            <div class="flex items-center gap-4 text-sm mt-1">
+                <span class="font-medium text-slate-700">{{ func.dateTime | date: 'HH:mm' }} hs</span>
+                <span class="w-1 h-1 bg-slate-400 rounded-full"></span>
+                <span class="text-slate-600">${{ func.price }}</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">
+                Quedan {{ func.capacity }} lugares
+            </p>
+        </div>
+
+        <!-- Action -->
+        <a [routerLink]="['/e', eventAlias, 'book', func.functionId]"
+            class="w-full sm:w-auto text-center bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-6 rounded-lg transition-colors whitespace-nowrap">
+            Reservar
+        </a>
+    </div>
+
+    <div *ngIf="functions.length === 0" class="text-center py-8 bg-slate-50 rounded-lg text-slate-500">
+        <p>No hay funciones disponibles por el momento.</p>
+    </div>
+</div>

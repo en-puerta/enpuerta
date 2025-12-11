@@ -1,0 +1,26 @@
+<!-- Carousel Mode (for featured events) -->
+<div *ngIf="carousel" class="relative">
+    <div class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+        <div *ngFor="let event of events"
+            class="flex-none w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start">
+            <app-event-card [event]="event" [nextFunction]="getFunctionData(event.eventId).nextFunction"
+                [functionsCount]="getFunctionData(event.eventId).count"
+                [isSoldOut]="getFunctionData(event.eventId).isSoldOut">
+            </app-event-card>
+        </div>
+    </div>
+</div>
+
+<!-- Grid Mode (for all events) -->
+<div *ngIf="!carousel" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let event of events">
+        <app-event-card [event]="event" [nextFunction]="getFunctionData(event.eventId).nextFunction"
+            [functionsCount]="getFunctionData(event.eventId).count"
+            [isSoldOut]="getFunctionData(event.eventId).isSoldOut">
+        </app-event-card>
+    </div>
+</div>
+
+<div *ngIf="events.length === 0" class="text-center py-12 text-slate-500">
+    <p>No se encontraron eventos para esta selección.</p>
+</div>

@@ -39,7 +39,8 @@ export class HomeComponent implements OnInit {
   constructor(private eventService: EventService) { }
 
   ngOnInit(): void {
-    const allEvents$ = this.eventService.getActiveEvents();
+    // Only show events that have at least one function
+    const allEvents$ = this.eventService.getActiveEventsWithFunctions();
 
     this.filteredEvents$ = combineLatest([allEvents$, this.filterSubject, this.sortSubject]).pipe(
       map(([events, filter, sort]) => {

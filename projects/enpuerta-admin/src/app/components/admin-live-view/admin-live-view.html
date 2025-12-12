@@ -1,55 +1,75 @@
-<!-- Header -->
-<h1 class="text-2xl font-bold mb-1">Vista en Vivo</h1>
-<p class="text-sm text-slate-600 mb-6">Monitoreo en tiempo real de la función</p>
+<div class="min-h-screen bg-background p-6">
+    <!-- Header -->
+    <h1 class="text-2xl font-bold mb-1 flex items-center gap-2">
+        <span class="text-2xl">📡</span> Vista en Vivo
+    </h1>
+    <p class="text-sm text-slate-600 mb-6">Monitoreo en tiempo real de la función</p>
 
-<!-- Metrics -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-        <p class="text-xs text-slate-500 uppercase mb-1">Reservas Totales</p>
-        <p class="text-3xl font-bold text-slate-900">{{ totalBookings }}</p>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-        <p class="text-xs text-slate-500 uppercase mb-1">Pagos Confirmados</p>
-        <p class="text-3xl font-bold text-slate-900">{{ paidBookings }}</p>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-        <p class="text-xs text-slate-500 uppercase mb-1">Presentes</p>
-        <p class="text-3xl font-bold text-slate-900">{{ checkedInCount }}</p>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-        <p class="text-xs text-slate-500 uppercase mb-1">Faltantes</p>
-        <p class="text-3xl font-bold text-slate-900">{{ totalBookings - checkedInCount }}</p>
-    </div>
-</div>
-
-<!-- Bookings List -->
-<div class="bg-white rounded-xl shadow-sm overflow-hidden">
-    <div class="px-4 py-3 bg-slate-100 border-b">
-        <h2 class="font-bold text-slate-900">Lista de Reservas</h2>
-    </div>
-
-    <div class="divide-y">
-        <div *ngFor="let booking of bookings$ | async"
-            class="px-4 py-3 hover:bg-slate-50 flex items-center justify-between">
-            <div>
-                <div class="font-medium text-slate-900">{{ booking.customerName }}</div>
-                <div class="text-sm text-slate-600">{{ booking.customerPhone }}</div>
+    <!-- Metrics -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border-l-4 border-primary">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-2xl">📊</span>
+                <p class="text-xs text-slate-500 uppercase font-semibold">Reservas Totales</p>
             </div>
+            <p class="text-3xl font-bold text-primary">{{ totalBookings }}</p>
+        </div>
 
-            <div class="flex items-center gap-4">
-                <div class="text-sm text-slate-600">
-                    <span class="font-medium">{{ booking.quantity }}</span> lugares
-                </div>
-                <app-status-badge [status]="booking.status"></app-status-badge>
+        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border-l-4 border-green-500">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-2xl">✅</span>
+                <p class="text-xs text-slate-500 uppercase font-semibold">Pagos Confirmados</p>
             </div>
+            <p class="text-3xl font-bold text-green-600">{{ paidBookings }}</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border-l-4 border-blue-500">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-2xl">👥</span>
+                <p class="text-xs text-slate-500 uppercase font-semibold">Presentes</p>
+            </div>
+            <p class="text-3xl font-bold text-blue-600">{{ checkedInCount }}</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border-l-4 border-amber-500">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-2xl">⏳</span>
+                <p class="text-xs text-slate-500 uppercase font-semibold">Faltantes</p>
+            </div>
+            <p class="text-3xl font-bold text-amber-600">{{ totalBookings - checkedInCount }}</p>
         </div>
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="(bookings$ | async)?.length === 0" class="p-10 text-center text-slate-500">
-        No hay reservas. <br> Las reservas aparecerán aquí en tiempo real.
+    <!-- Bookings List -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200">
+        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <h2 class="font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-lg">📋</span> Lista de Reservas
+            </h2>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+            <div *ngFor="let booking of bookings$ | async"
+                class="px-4 py-3 hover:bg-slate-50 flex items-center justify-between transition-colors">
+                <div>
+                    <div class="font-medium text-slate-900">{{ booking.customerName }}</div>
+                    <div class="text-sm text-slate-600">{{ booking.customerPhone }}</div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-slate-600">
+                        <span class="font-semibold text-slate-900">{{ booking.quantity }}</span> lugares
+                    </div>
+                    <app-status-badge [status]="booking.status"></app-status-badge>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="(bookings$ | async)?.length === 0" class="p-10 text-center text-slate-500">
+            <div class="text-5xl mb-3">📭</div>
+            <p class="font-medium text-slate-700">No hay reservas</p>
+            <p class="text-sm mt-1">Las reservas aparecerán aquí en tiempo real</p>
+        </div>
     </div>
 </div>

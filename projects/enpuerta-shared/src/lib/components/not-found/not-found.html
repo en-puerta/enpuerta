@@ -1,0 +1,53 @@
+<div class="min-h-screen bg-background flex items-center justify-center p-6">
+    <div class="max-w-md w-full text-center">
+        <!-- 404 Number -->
+        <div class="text-9xl font-bold text-primary mb-4">404</div>
+
+        <!-- Icon -->
+        <div class="text-6xl mb-6">🔍</div>
+
+        <!-- Title -->
+        <h1 class="text-3xl font-bold text-slate-900 mb-3">
+            Página no encontrada
+        </h1>
+
+        <!-- Description -->
+        <p class="text-slate-600 mb-8">
+            Lo sentimos, la página que estás buscando no existe o fue movida.
+        </p>
+
+        <!-- Actions -->
+        <div class="space-y-3">
+            <button (click)="goHome()"
+                class="w-full bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
+                🏠 Volver al inicio
+            </button>
+
+            <a href="https://wa.me/5493516638079?text=Hola!%20Encontré%20un%20error%20404" target="_blank"
+                class="block w-full bg-white hover:bg-slate-50 text-slate-700 px-6 py-3 rounded-lg font-medium transition-colors border border-slate-200">
+                💬 Reportar problema
+            </a>
+        </div>
+
+        <!-- Suggestions Card -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200 mt-8 text-left">
+            <h3 class="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                <span>💡</span> Sugerencias
+            </h3>
+            <ul class="text-sm text-slate-600 space-y-2">
+                <li class="flex items-start gap-2">
+                    <span class="text-primary">•</span>
+                    <span>Verificá que la URL esté escrita correctamente</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-primary">•</span>
+                    <span>Usá el menú de navegación para encontrar lo que buscás</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-primary">•</span>
+                    <span>Si el problema persiste, contactanos</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

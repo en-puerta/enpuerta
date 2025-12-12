@@ -49,4 +49,16 @@ export class AdminFunctionsList implements OnInit {
   viewLive(functionId: string) {
     this.router.navigate(['/events', this.eventId, 'functions', functionId, 'live']);
   }
+
+  async cancelFunction(func: Function) {
+    if (confirm(`¿Estás seguro que querés cancelar la función del ${func.dateTime}?`)) {
+      try {
+        await this.functionService.updateFunction(this.eventId, func.functionId!, { status: 'closed' });
+        alert('Función cancelada exitosamente');
+      } catch (error) {
+        console.error('Error canceling function:', error);
+        alert('Error al cancelar la función');
+      }
+    }
+  }
 }

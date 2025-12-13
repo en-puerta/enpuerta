@@ -10,6 +10,7 @@ import { BarcodeFormat } from '@zxing/library';
   styleUrl: './checkin-scanner.scss',
 })
 export class CheckinScanner implements OnInit {
+  eventId: string | null = null;
   functionId: string | null = null;
   function: Function | undefined;
   event: any;
@@ -31,15 +32,16 @@ export class CheckinScanner implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
+      this.eventId = params.get('eventId');
       this.functionId = params.get('functionId');
-      if (this.functionId) {
-        this.loadFunction(this.functionId);
+      if (this.eventId && this.functionId) {
+        this.loadFunction(this.eventId, this.functionId);
       }
     });
   }
 
-  loadFunction(id: string): void {
-    this.functionService.getFunction(id).subscribe(f => this.function = f);
+  loadFunction(eventId: string, functionId: string): void {
+    this.functionService.getFunction(eventId, functionId).subscribe(f => this.function = f);
   }
 
   onCodeResult(resultString: string): void {
@@ -51,13 +53,13 @@ export class CheckinScanner implements OnInit {
   }
 
   searchBooking(qrCode: string): void {
-    if (!this.functionId) return;
+    if (!this.eventId || !this.functionId) return;
 
     this.searchStatus = 'searching';
     this.feedbackMessage = '';
     this.foundBooking = null;
 
-    this.bookingService.getBookingByQr(qrCode, this.functionId).subscribe({
+    this.bookingService.getBookingByQr(this.eventId, this.functionId, qrCode).subscribe({
       next: (booking) => {
         if (booking) {
           this.foundBooking = booking;
@@ -82,9 +84,9 @@ export class CheckinScanner implements OnInit {
   }
 
   async checkIn(): Promise<void> {
-    if (this.foundBooking && this.foundBooking.bookingId) {
+    if (this.foundBooking && this.foundBooking.bookingId && this.eventId && this.functionId) {
       try {
-        await this.bookingService.updateStatus(this.foundBooking.bookingId, 'checked_in');
+        await this.bookingService.updateStatus(this.eventId, this.functionId, this.foundBooking.bookingId, 'checked_in');
         this.foundBooking.status = 'checked_in'; // Optimistic update
         this.feedbackMessage = 'Ingreso registrado correctamente.';
       } catch (err) {

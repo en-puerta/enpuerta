@@ -7,8 +7,8 @@ import { AuthGuard } from '@enpuerta/shared';
 
 const routes: Routes = [
   { path: '', component: CheckinLandingComponent },
-  { path: ':functionId', component: CheckinScanner, canActivate: [AuthGuard] },
-  { path: ':functionId/summary', component: CheckinSummary, canActivate: [AuthGuard] }
+  { path: ':eventId/:functionId', component: CheckinScanner, canActivate: [AuthGuard] },
+  { path: ':eventId/:functionId/summary', component: CheckinSummary, canActivate: [AuthGuard] }
 ];
 
 @NgModule({

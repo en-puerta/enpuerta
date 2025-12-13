@@ -32,9 +32,8 @@ jobs:
       - name: Build Public
         run: npm run build:public
       
-      # Note: Checkin build skipped - needs to be updated for new service signatures
-      # - name: Build Checkin
-      #   run: npm run build:checkin
+      - name: Build Checkin
+        run: npm run build:checkin
       
       # Deploy to Firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0

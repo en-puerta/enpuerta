@@ -50,8 +50,8 @@
 
         <div class="divide-y divide-slate-100">
             <div *ngFor="let booking of bookings$ | async"
-                class="px-4 py-3 hover:bg-slate-50 flex items-center justify-between transition-colors">
-                <div>
+                class="px-4 py-3 hover:bg-slate-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-colors">
+                <div class="flex-1">
                     <div class="font-medium text-slate-900">{{ booking.customerName }}</div>
                     <div class="text-sm text-slate-600">{{ booking.customerPhone }}</div>
                 </div>

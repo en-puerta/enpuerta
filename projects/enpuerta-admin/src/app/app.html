@@ -4,13 +4,17 @@
 </div>
 
 <div *ngIf="showLayout" class="min-h-screen flex">
+    <!-- Mobile Backdrop -->
+    <div *ngIf="isSidebarOpen" (click)="closeSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden">
+    </div>
+
     <!-- Sidebar -->
-    <app-admin-sidebar></app-admin-sidebar>
+    <app-admin-sidebar [isOpen]="isSidebarOpen" (close)="closeSidebar()"></app-admin-sidebar>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col bg-background">
         <!-- Top Bar -->
-        <app-admin-topbar [pageTitle]="pageTitle"></app-admin-topbar>
+        <app-admin-topbar [pageTitle]="pageTitle" (toggleSidebar)="toggleSidebar()"></app-admin-topbar>
 
         <!-- Content -->
         <main class="p-4 md:p-6 max-w-6xl w-full mx-auto">

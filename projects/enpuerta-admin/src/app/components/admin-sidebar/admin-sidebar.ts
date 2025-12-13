@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -7,5 +7,6 @@ import { Component } from '@angular/core';
   styleUrl: './admin-sidebar.scss',
 })
 export class AdminSidebarComponent {
-
+  @Input() isOpen = false;
+  @Output() close = new EventEmitter<void>();
 }

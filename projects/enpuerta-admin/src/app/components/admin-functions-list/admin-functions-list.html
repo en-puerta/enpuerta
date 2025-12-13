@@ -22,8 +22,58 @@
         </div>
     </div>
 
-    <!-- Functions Table -->
-    <div *ngIf="(functions$ | async)?.length" class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <!-- Mobile Card View -->
+    <div *ngIf="(functions$ | async)?.length" class="md:hidden space-y-4">
+        <div *ngFor="let func of functions$ | async" class="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+            <!-- Date/Time -->
+            <div class="mb-3">
+                <div class="font-semibold text-slate-900 text-lg">
+                    {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'d MMM, y':'':'es-AR') : (func.dateTime |
+                    date:'d MMM, y':'':'es-AR') }}
+                </div>
+                <div class="text-slate-600">
+                    {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'HH:mm') : (func.dateTime | date:'HH:mm')
+                    }} hs
+                </div>
+            </div>
+
+            <!-- Capacity, Price & Status -->
+            <div class="flex items-center gap-4 mb-3 flex-wrap">
+                <div class="text-sm">
+                    <span class="text-slate-600">Capacidad:</span>
+                    <span class="font-semibold text-slate-900 ml-1">{{ func.capacity }}</span>
+                </div>
+                <div class="text-sm">
+                    <span class="text-slate-600">Precio:</span>
+                    <span class="font-semibold text-slate-900 ml-1">${{ func.price }}</span>
+                </div>
+                <app-status-badge [status]="func.status"></app-status-badge>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col gap-2">
+                <button (click)="editFunction(func.functionId)"
+                    class="w-full px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors">
+                    ✏️ Editar
+                </button>
+                <button (click)="viewBookings(func.functionId)"
+                    class="w-full px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-sm font-medium transition-colors">
+                    📋 Reservas
+                </button>
+                <button (click)="viewLive(func.functionId)"
+                    class="w-full px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors">
+                    📡 En Vivo
+                </button>
+                <button (click)="cancelFunction(func)" *ngIf="func.status === 'open'"
+                    class="w-full px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors">
+                    ❌ Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Table View -->
+    <div *ngIf="(functions$ | async)?.length" class="hidden md:block bg-white rounded-xl shadow-sm overflow-hidden">
         <table class="min-w-full">
             <thead class="bg-slate-100 text-slate-600 text-sm">
                 <tr>

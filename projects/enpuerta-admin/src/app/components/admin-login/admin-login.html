@@ -1,17 +1,17 @@
-<div class="min-h-screen flex items-center justify-center bg-background">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6">
+<div class="min-h-screen flex items-center justify-center bg-background p-4">
+    <div class="w-full max-w-sm bg-white rounded-2xl shadow-lg p-6 md:p-8 space-y-5">
 
         <!-- Logo -->
-        <div class="flex items-center gap-3 justify-center">
-            <img src="assets/images/logo-icon.jpg" alt="EnPuerta" class="h-12 w-12 object-contain rounded-md"
+        <div class="flex flex-col items-center gap-3 justify-center">
+            <img src="assets/images/logo-icon.jpg" alt="EnPuerta" class="h-14 w-14 object-contain rounded-md"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="h-12 w-12 rounded-md bg-primary flex items-center justify-center text-white font-bold text-lg"
+            <div class="h-14 w-14 rounded-md bg-primary flex items-center justify-center text-white font-bold text-xl"
                 style="display:none;">EP</div>
-            <span class="text-2xl font-semibold text-slate-900">EnPuerta <span class="text-slate-400">·</span> <span
-                    class="text-slate-600">Admin</span></span>
+            <span class="text-xl md:text-2xl font-semibold text-slate-900">EnPuerta <span
+                    class="text-slate-400">·</span> <span class="text-slate-600">Admin</span></span>
         </div>
 
-        <h1 class="text-2xl font-bold text-center text-slate-900">Ingresar</h1>
+        <h1 class="text-xl md:text-2xl font-bold text-center text-slate-900">Ingresar</h1>
 
         <!-- Error Message -->
         <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -38,7 +38,7 @@
             </button>
         </form>
 
-        <p class="text-center text-sm text-slate-600">
+        <p class="text-center text-xs md:text-sm text-slate-600">
             ¿Todavía no tenés cuenta? <a
                 href="https://wa.me/5493516638079?text=Hola!%20Me%20gustaría%20ser%20organizador%20en%20EnPuerta"
                 target="_blank"

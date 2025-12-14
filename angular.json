@@ -228,6 +228,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/enpuerta-admin/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/enpuerta-admin/src/assets",
+                "output": "/assets"
               }
             ],
             "styles": [

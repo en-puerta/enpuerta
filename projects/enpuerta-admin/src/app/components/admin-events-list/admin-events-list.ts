@@ -5,6 +5,9 @@ import { map, switchMap } from 'rxjs/operators';
 import { EventService, AuthService } from '@enpuerta/shared';
 import { Event } from '@enpuerta/shared';
 
+type SortColumn = 'nameInternal' | 'aliasPublic' | 'eventType' | 'status';
+type SortDirection = 'asc' | 'desc';
+
 @Component({
   selector: 'app-admin-events-list',
   standalone: false,
@@ -15,9 +18,19 @@ export class AdminEventsList implements OnInit {
   events$!: Observable<Event[]>;
   filteredEvents$!: Observable<Event[]>;
   selectedType = 'Todos';
+  selectedStatus = 'Todos';
   eventTypes = ['Todos', 'Teatro', 'Stand-up', 'Música', 'Taller', 'Otro'];
+  eventStatuses = ['Todos', 'active', 'inactive'];
 
-  private filterSubject = new BehaviorSubject<string>('Todos');
+  sortBy: SortColumn = 'nameInternal';
+  sortDirection: SortDirection = 'asc';
+
+  private filterTypeSubject = new BehaviorSubject<string>('Todos');
+  private filterStatusSubject = new BehaviorSubject<string>('Todos');
+  private sortSubject = new BehaviorSubject<{ column: SortColumn, direction: SortDirection }>({
+    column: 'nameInternal',
+    direction: 'asc'
+  });
 
   constructor(
     private eventService: EventService,
@@ -34,21 +47,68 @@ export class AdminEventsList implements OnInit {
       })
     );
 
-    // Filter events by type
+    // Filter and sort events
     this.filteredEvents$ = combineLatest([
       this.events$,
-      this.filterSubject
+      this.filterTypeSubject,
+      this.filterStatusSubject,
+      this.sortSubject
     ]).pipe(
-      map(([events, filter]) => {
-        if (filter === 'Todos') return events;
-        return events.filter(e => e.eventType === filter.toLowerCase());
+      map(([events, typeFilter, statusFilter, sort]) => {
+        // Filter by type
+        let filtered = typeFilter === 'Todos'
+          ? events
+          : events.filter(e => e.eventType === typeFilter.toLowerCase());
+
+        // Filter by status
+        filtered = statusFilter === 'Todos'
+          ? filtered
+          : filtered.filter(e => e.status === statusFilter);
+
+        // Sort
+        return this.sortEvents(filtered, sort.column, sort.direction);
       })
     );
   }
 
   filterByType(type: string) {
     this.selectedType = type;
-    this.filterSubject.next(type);
+    this.filterTypeSubject.next(type);
+  }
+
+  filterByStatus(status: string) {
+    this.selectedStatus = status;
+    this.filterStatusSubject.next(status);
+  }
+
+  setSorting(column: SortColumn) {
+    // Toggle direction if same column, otherwise default to asc
+    if (this.sortBy === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = column;
+      this.sortDirection = 'asc';
+    }
+    this.sortSubject.next({ column: this.sortBy, direction: this.sortDirection });
+  }
+
+  private sortEvents(events: Event[], column: SortColumn, direction: SortDirection): Event[] {
+    const sorted = [...events].sort((a, b) => {
+      let aVal: any = a[column];
+      let bVal: any = b[column];
+
+      // Handle string comparison
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+
+      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return sorted;
   }
 
   goToNewEvent() {
@@ -61,5 +121,19 @@ export class AdminEventsList implements OnInit {
 
   viewFunctions(eventId: string) {
     this.router.navigate(['/events', eventId, 'functions']);
+  }
+
+  async cancelEvent(event: Event) {
+    if (!confirm(`¿Estás seguro de que querés cancelar el evento "${event.nameInternal}"?`)) {
+      return;
+    }
+
+    try {
+      await this.eventService.updateEvent(event.eventId, { status: 'inactive' });
+      // The UI will update automatically thanks to real-time observables
+    } catch (error) {
+      console.error('Error canceling event:', error);
+      alert('Hubo un error al cancelar el evento. Por favor intentá de nuevo.');
+    }
   }
 }

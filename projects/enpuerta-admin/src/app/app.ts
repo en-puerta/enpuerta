@@ -11,6 +11,7 @@ import { filter } from 'rxjs';
 export class App {
   showLayout = true;
   pageTitle = 'Admin';
+  isSidebarOpen = false;
 
   constructor(private router: Router) {
     this.router.events.pipe(
@@ -18,7 +19,17 @@ export class App {
     ).subscribe((event: any) => {
       this.showLayout = !event.url.includes('/login');
       this.updatePageTitle(event.url);
+      // Close sidebar on navigation (mobile)
+      this.isSidebarOpen = false;
     });
+  }
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar() {
+    this.isSidebarOpen = false;
   }
 
   private updatePageTitle(url: string) {

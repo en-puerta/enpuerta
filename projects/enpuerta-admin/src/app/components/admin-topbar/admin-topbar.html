@@ -1,10 +1,20 @@
-<header class="h-16 bg-white border-b flex items-center justify-between px-6">
-    <!-- Dynamic Title -->
-    <h2 class="text-lg font-semibold text-slate-900">{{ pageTitle }}</h2>
+<header class="h-16 bg-white border-b flex items-center justify-between px-4 md:px-6">
+    <!-- Hamburger Menu (Mobile Only) -->
+    <button (click)="toggleSidebar.emit()" class="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+        aria-label="Toggle menu">
+        <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <!-- Welcome Message -->
+    <h2 class="text-lg font-semibold text-slate-900" *ngIf="userName$ | async as userName">
+        Bienvenido <span class="text-primary">{{ userName }}</span>
+    </h2>
 
     <!-- User + Logout -->
     <div class="flex items-center gap-4">
-        <span class="text-sm text-slate-600" *ngIf="userEmail$ | async as email">
+        <span class="text-sm text-slate-600 hidden sm:block" *ngIf="userEmail$ | async as email">
             {{ email }}
         </span>
         <button (click)="logout()" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">

@@ -7,10 +7,11 @@ import { AdminFunctionsList } from './components/admin-functions-list/admin-func
 import { AdminFunctionForm } from './components/admin-function-form/admin-function-form';
 import { AdminBookingsList } from './components/admin-bookings-list/admin-bookings-list';
 import { AdminLiveView } from './components/admin-live-view/admin-live-view';
-import { AuthGuard } from '@enpuerta/shared';
+import { AuthGuard, MaintenanceComponent, NotFoundComponent } from '@enpuerta/shared';
 
 const routes: Routes = [
   { path: 'login', component: AdminLogin },
+  { path: 'maintenance', component: MaintenanceComponent },
   { path: 'events', component: AdminEventsList, canActivate: [AuthGuard] },
   { path: 'events/new', component: AdminEventForm, canActivate: [AuthGuard] },
   { path: 'events/:eventId/edit', component: AdminEventForm, canActivate: [AuthGuard] },
@@ -19,7 +20,8 @@ const routes: Routes = [
   { path: 'events/:eventId/functions/:functionId/edit', component: AdminFunctionForm, canActivate: [AuthGuard] },
   { path: 'events/:eventId/functions/:functionId/bookings', component: AdminBookingsList, canActivate: [AuthGuard] },
   { path: 'events/:eventId/functions/:functionId/live', component: AdminLiveView, canActivate: [AuthGuard] },
-  { path: '', redirectTo: 'events', pathMatch: 'full' }
+  { path: '', redirectTo: 'events', pathMatch: 'full' },
+  { path: '**', component: NotFoundComponent } // 404 - Must be last
 ];
 
 @NgModule({

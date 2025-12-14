@@ -18,3 +18,7 @@ export * from './lib/services/organization';
 
 // Guards
 export * from './lib/guards/auth.guard';
+
+// Components
+export * from './lib/components/maintenance/maintenance';
+export * from './lib/components/not-found/not-found';

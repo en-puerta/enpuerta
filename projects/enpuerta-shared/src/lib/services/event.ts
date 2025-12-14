@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc, collectionData, onSnapshot } from '@angular/fire/firestore';
-import { Observable, from, map } from 'rxjs';
+import { Observable, from, map, switchMap, forkJoin, of } from 'rxjs';
 import { Event } from '../models/event.model';
 
 @Injectable({
@@ -65,6 +65,34 @@ export class EventService {
       );
       return () => unsubscribe();
     });
+  }
+
+  // Real-time observable for active events with at least one function
+  getActiveEventsWithFunctions(): Observable<Event[]> {
+    return this.getActiveEvents().pipe(
+      switchMap(events => {
+        if (events.length === 0) {
+          return of([]);
+        }
+
+        // Check each event for functions
+        const eventChecks = events.map(event =>
+          from(getDocs(collection(this.firestore, 'events', event.eventId!, 'functions'))).pipe(
+            map(snapshot => ({
+              event,
+              hasFunctions: !snapshot.empty
+            }))
+          )
+        );
+
+        return forkJoin(eventChecks).pipe(
+          map(results => results
+            .filter(result => result.hasFunctions)
+            .map(result => result.event)
+          )
+        );
+      })
+    );
   }
 
   // Real-time observable for event by alias

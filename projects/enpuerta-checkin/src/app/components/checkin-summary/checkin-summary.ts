@@ -17,6 +17,7 @@ interface Stats {
   styleUrl: './checkin-summary.scss',
 })
 export class CheckinSummary implements OnInit {
+  eventId: string | null = null;
   functionId: string | null = null;
   function: Function | undefined;
   event: any;
@@ -31,17 +32,18 @@ export class CheckinSummary implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
+      this.eventId = params.get('eventId');
       this.functionId = params.get('functionId');
-      if (this.functionId) {
-        this.loadData(this.functionId);
+      if (this.eventId && this.functionId) {
+        this.loadData(this.eventId, this.functionId);
       }
     });
   }
 
-  loadData(id: string): void {
-    this.functionService.getFunction(id).subscribe(f => this.function = f);
+  loadData(eventId: string, functionId: string): void {
+    this.functionService.getFunction(eventId, functionId).subscribe(f => this.function = f);
 
-    this.bookings$ = this.bookingService.getBookings(id);
+    this.bookings$ = this.bookingService.getBookings(eventId, functionId);
 
     this.stats$ = this.bookings$.pipe(
       map(bookings => {

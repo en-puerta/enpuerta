@@ -1,325 +1,370 @@
-<div class="min-h-screen bg-background p-6">
-    <div class="bg-white rounded-xl shadow-sm p-6 space-y-6">
-        <h2 class="text-xl font-bold">{{ isEditMode ? 'Editar evento' : 'Nuevo evento' }}</h2>
+<div>
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-8 space-y-6 max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="border-b border-slate-200 pb-6">
+            <h2 class="text-2xl font-bold text-slate-900">{{ isEditMode ? 'Editar evento' : 'Nuevo evento' }}</h2>
+            <p class="text-sm text-slate-600 mt-1">Completá la información en 3 simples pasos</p>
+        </div>
 
-        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <!-- Progress Indicator -->
+        <div class="mb-8">
+            <!-- Circles and Lines -->
+            <div class="flex items-center justify-center mb-4">
+                <div class="flex items-center max-w-md w-full">
+                    <div *ngFor="let step of [1, 2, 3]; let i = index" class="flex items-center" [class.flex-1]="i < 2">
+                        <!-- Step Circle -->
+                        <button type="button" (click)="goToStep(step)" [class.bg-primary]="currentStep >= step"
+                            [class.text-white]="currentStep >= step" [class.bg-slate-200]="currentStep < step"
+                            [class.text-slate-500]="currentStep < step" [class.cursor-pointer]="step < currentStep"
+                            [class.cursor-not-allowed]="step > currentStep"
+                            class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all z-10 relative shrink-0">
+                            <span *ngIf="isStepComplete(step) && step < currentStep">✓</span>
+                            <span *ngIf="!isStepComplete(step) || step >= currentStep">{{ step }}</span>
+                        </button>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Nombre Interno</label>
-                    <input type="text" formControlName="nameInternal"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Alias Público</label>
-                    <input type="text" formControlName="aliasPublic"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Descripción Corta</label>
-                <textarea formControlName="descriptionShort" rows="2"
-                    class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Descripción Larga</label>
-                <textarea formControlName="descriptionLong" rows="4"
-                    class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Ubicación</label>
-                <input type="text" formControlName="locationAddress" placeholder="Dirección del evento"
-                    class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">URL Imagen de Portada</label>
-                <input type="text" formControlName="coverImageUrl"
-                    class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Tipo de Evento</label>
-                    <select formControlName="eventType"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-                        <option value="teatro">Teatro</option>
-                        <option value="standup">Stand-up</option>
-                        <option value="musica">Música</option>
-                        <option value="taller">Taller</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Capacidad sugerida para
-                        funciones</label>
-                    <input type="number" formControlName="defaultCapacity"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-                    <p class="text-xs text-slate-500 mt-1">Este valor se usará como sugerencia al crear funciones</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Estado</label>
-                    <select formControlName="status"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-                        <option value="active">Activo</option>
-                        <option value="inactive">Inactivo</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <input type="checkbox" formControlName="isSponsored" id="sponsored"
-                    class="h-4 w-4 text-slate-900 border-slate-300 rounded">
-                <label for="sponsored" class="text-sm text-slate-700">
-                    <span class="text-amber-500">★</span> Evento Destacado
-                </label>
-            </div>
-
-            <!-- Function Type Selection -->
-            <div class="space-y-4">
-                <h3 class="text-base font-semibold text-slate-900 border-b pb-2">Tipo de Funciones</h3>
-                <p class="text-sm text-slate-600">¿Este evento tiene una o varias funciones?</p>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- Single Function Card -->
-                    <div (click)="eventForm.patchValue({functionType: 'single'})"
-                        [class.border-primary]="eventForm.get('functionType')?.value === 'single'"
-                        [class.bg-primary]="eventForm.get('functionType')?.value === 'single'"
-                        [class.bg-opacity-5]="eventForm.get('functionType')?.value === 'single'"
-                        class="cursor-pointer border-2 border-slate-200 rounded-lg p-4 hover:border-primary transition-colors">
-                        <div class="text-3xl mb-2">🎭</div>
-                        <h4 class="font-semibold text-slate-900 mb-1">Función única</h4>
-                        <p class="text-sm text-slate-600">Una sola fecha y horario</p>
-                    </div>
-
-                    <!-- Multiple Functions Card -->
-                    <div (click)="eventForm.patchValue({functionType: 'multiple'})"
-                        [class.border-primary]="eventForm.get('functionType')?.value === 'multiple'"
-                        [class.bg-primary]="eventForm.get('functionType')?.value === 'multiple'"
-                        [class.bg-opacity-5]="eventForm.get('functionType')?.value === 'multiple'"
-                        class="cursor-pointer border-2 border-slate-200 rounded-lg p-4 hover:border-primary transition-colors">
-                        <div class="text-3xl mb-2">📅</div>
-                        <h4 class="font-semibold text-slate-900 mb-1">Múltiples funciones</h4>
-                        <p class="text-sm text-slate-600">Varias fechas u horarios</p>
+                        <!-- Connector Line -->
+                        <div *ngIf="i < 2" class="flex-1 h-1 mx-3" [class.bg-primary]="currentStep > step"
+                            [class.bg-slate-200]="currentStep <= step"></div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Single Function Fields (conditional) -->
-                <div *ngIf="eventForm.get('functionType')?.value === 'single'"
-                    class="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <p class="text-sm text-slate-600 flex items-center gap-2">
-                        <span class="text-lg">ℹ️</span>
-                        Se creará automáticamente una función con estos datos
+            <!-- Step Labels -->
+            <div class="grid grid-cols-3 gap-2 max-w-md mx-auto">
+                <div class="text-center">
+                    <p class="text-xs font-medium" [class.text-primary]="currentStep === 1"
+                        [class.text-slate-600]="currentStep !== 1">
+                        Información Básica
                     </p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs font-medium" [class.text-primary]="currentStep === 2"
+                        [class.text-slate-600]="currentStep !== 2">
+                        Funciones y Precios
+                    </p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs font-medium" [class.text-primary]="currentStep === 3"
+                        [class.text-slate-600]="currentStep !== 3">
+                        Gestión de Pagos
+                    </p>
+                </div>
+            </div>
+        </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
-                            <input type="date" formControlName="functionDate"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Hora</label>
-                            <input type="time" formControlName="functionTime"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                        </div>
+        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+            <!-- STEP 1: Basic Information -->
+            <div *ngIf="currentStep === 1" class="space-y-6 animate-fadeIn">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Nombre Interno *</label>
+                        <input type="text" formControlName="nameInternal" placeholder="Ej: Hamlet 2025"
+                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Alias Público *</label>
+                        <input type="text" formControlName="aliasPublic" placeholder="Ej: hamlet-2025"
+                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Descripción Corta</label>
+                    <textarea formControlName="descriptionShort" rows="2" placeholder="Breve descripción del evento"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Descripción Larga</label>
+                    <textarea formControlName="descriptionLong" rows="4" placeholder="Descripción detallada del evento"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Ubicación</label>
+                    <input type="text" formControlName="locationAddress" placeholder="Dirección del evento"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">URL Imagen de Portada</label>
+                    <input type="text" formControlName="coverImageUrl" placeholder="https://..."
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Tipo de Evento *</label>
+                        <select formControlName="eventType"
+                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-white">
+                            <option value="teatro">Teatro</option>
+                            <option value="standup">Stand-up</option>
+                            <option value="musica">Música</option>
+                            <option value="taller">Taller</option>
+                            <option value="otro">Otro</option>
+                        </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Cerrar reservas (minutos
-                            antes)</label>
-                        <input type="number" formControlName="functionAutoClose"
-                            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Capacidad sugerida *</label>
+                        <input type="number" formControlName="defaultCapacity"
+                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                        <p class="text-xs text-slate-500 mt-1">Valor por defecto para funciones</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Estado *</label>
+                        <select formControlName="status"
+                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-white">
+                            <option value="active">Activo</option>
+                            <option value="inactive">Inactivo</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Multiple Functions Message (conditional) -->
-                <div *ngIf="eventForm.get('functionType')?.value === 'multiple'"
-                    class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p class="text-sm text-blue-800 flex items-center gap-2">
-                        <span class="text-lg">📅</span>
-                        Podrás agregar las funciones después de crear el evento
-                    </p>
+                <div class="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <input type="checkbox" formControlName="isSponsored" id="sponsored"
+                        class="h-5 w-5 text-primary border-slate-300 rounded focus:ring-2 focus:ring-primary/20 mt-0.5">
+                    <div class="flex-1">
+                        <label for="sponsored" class="text-sm font-medium text-slate-700 cursor-pointer block">
+                            <span class="text-amber-500 text-lg">★</span> Marcar como evento destacado
+                        </label>
+                        <p *ngIf="eventForm.get('isSponsored')?.value"
+                            class="text-xs text-amber-700 mt-2 flex items-start gap-1">
+                            <span class="text-sm">💰</span>
+                            <span>Se cobrará un monto de <strong>$5.000</strong> por evento promocionado. Los eventos
+                                destacados aparecen primero en la página principal.</span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Pricing Configuration -->
-            <div class="space-y-4">
-                <h3 class="text-base font-semibold text-slate-900 border-b pb-2">Configuración de Precios</h3>
-                <p class="text-sm text-slate-600">¿Cómo se venderán las entradas?</p>
+            <!-- STEP 2: Functions & Pricing -->
+            <div *ngIf="currentStep === 2" class="space-y-6 animate-fadeIn">
+                <!-- Function Type Selection -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-slate-900">Tipo de Funciones</h3>
+                    <p class="text-sm text-slate-600">¿Este evento tiene una o varias funciones?</p>
 
-                <div class="space-y-3">
-                    <!-- Fixed Price Option -->
-                    <div class="border rounded-lg transition-all"
-                        [class.border-slate-900]="eventForm.get('pricingType')?.value === 'fixed'"
-                        [class.border-slate-300]="eventForm.get('pricingType')?.value !== 'fixed'">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div (click)="eventForm.patchValue({functionType: 'single'})"
+                            [class.border-primary]="eventForm.get('functionType')?.value === 'single'"
+                            [class.bg-primary/5]="eventForm.get('functionType')?.value === 'single'"
+                            [class.shadow-md]="eventForm.get('functionType')?.value === 'single'"
+                            class="cursor-pointer border-2 border-slate-200 rounded-xl p-6 hover:border-primary hover:shadow-sm transition-all">
+                            <div class="text-4xl mb-3">🎭</div>
+                            <h4 class="font-semibold text-slate-900 mb-2">Función única</h4>
+                            <p class="text-sm text-slate-600">Una sola fecha y horario</p>
+                        </div>
 
-                        <label
-                            class="flex items-start gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-lg">
-                            <input type="radio" formControlName="pricingType" value="fixed"
-                                class="mt-1 h-4 w-4 text-slate-900 border-slate-300">
-                            <div class="flex-1">
-                                <div class="font-medium text-slate-900">Precio fijo</div>
-                                <div class="text-sm text-slate-600">Las entradas tienen un precio establecido</div>
-                            </div>
-                        </label>
-
-                        <!-- Price Field (inside card) -->
-                        <div *ngIf="eventForm.get('pricingType')?.value === 'fixed'"
-                            class="px-3 pb-3 pt-2 border-t border-slate-200 bg-slate-50/50">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-700 mb-1">Precio por entrada</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-2 text-sm text-slate-500">$</span>
-                                    <input type="number" formControlName="defaultPrice" placeholder="0"
-                                        class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
-                                </div>
-                            </div>
+                        <div (click)="eventForm.patchValue({functionType: 'multiple'})"
+                            [class.border-primary]="eventForm.get('functionType')?.value === 'multiple'"
+                            [class.bg-primary/5]="eventForm.get('functionType')?.value === 'multiple'"
+                            [class.shadow-md]="eventForm.get('functionType')?.value === 'multiple'"
+                            class="cursor-pointer border-2 border-slate-200 rounded-xl p-6 hover:border-primary hover:shadow-sm transition-all">
+                            <div class="text-4xl mb-3">📅</div>
+                            <h4 class="font-semibold text-slate-900 mb-2">Múltiples funciones</h4>
+                            <p class="text-sm text-slate-600">Varias fechas u horarios</p>
                         </div>
                     </div>
 
-                    <!-- Pay What You Want Option -->
-                    <div class="border rounded-lg transition-all"
-                        [class.border-slate-900]="eventForm.get('pricingType')?.value === 'pay-what-you-want'"
-                        [class.border-slate-300]="eventForm.get('pricingType')?.value !== 'pay-what-you-want'">
+                    <!-- Single Function Fields -->
+                    <div *ngIf="eventForm.get('functionType')?.value === 'single'"
+                        class="space-y-4 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <p class="text-sm text-slate-600 flex items-center gap-2">
+                            <span class="text-lg">ℹ️</span>
+                            Se creará automáticamente una función con estos datos
+                        </p>
 
-                        <label
-                            class="flex items-start gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-lg">
-                            <input type="radio" formControlName="pricingType" value="pay-what-you-want"
-                                class="mt-1 h-4 w-4 text-slate-900 border-slate-300">
-                            <div class="flex-1">
-                                <div class="font-medium text-slate-900">A la gorra</div>
-                                <div class="text-sm text-slate-600">El cliente decide cuánto pagar</div>
-                            </div>
-                        </label>
-
-                        <!-- Suggested Price Field (inside card) -->
-                        <div *ngIf="eventForm.get('pricingType')?.value === 'pay-what-you-want'"
-                            class="px-3 pb-3 pt-2 border-t border-slate-200 bg-slate-50/50">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-medium text-slate-700 mb-1">Precio sugerido
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Fecha *</label>
+                                <input type="date" formControlName="functionDate"
+                                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Hora *</label>
+                                <input type="time" formControlName="functionTime"
+                                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-white">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Cerrar reservas (minutos
+                                antes)</label>
+                            <input type="number" formControlName="functionAutoClose"
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Multiple Functions Message -->
+                    <div *ngIf="eventForm.get('functionType')?.value === 'multiple'"
+                        class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <p class="text-sm text-blue-800 flex items-center gap-2">
+                            <span class="text-lg">📅</span>
+                            Podrás agregar las funciones después de crear el evento
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pricing Configuration -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-slate-900">Configuración de Precios</h3>
+                    <p class="text-sm text-slate-600">¿Cómo se venderán las entradas?</p>
+
+                    <div class="space-y-3">
+                        <!-- Fixed Price -->
+                        <div class="border-2 rounded-xl transition-all"
+                            [class.border-primary]="eventForm.get('pricingType')?.value === 'fixed'"
+                            [class.shadow-md]="eventForm.get('pricingType')?.value === 'fixed'"
+                            [class.border-slate-200]="eventForm.get('pricingType')?.value !== 'fixed'">
+                            <label
+                                class="flex items-start gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-xl">
+                                <input type="radio" formControlName="pricingType" value="fixed"
+                                    class="mt-1 h-5 w-5 text-primary border-slate-300 focus:ring-2 focus:ring-primary/20">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-slate-900">Precio fijo</div>
+                                    <div class="text-sm text-slate-600">Las entradas tienen un precio establecido</div>
+                                </div>
+                            </label>
+                            <div *ngIf="eventForm.get('pricingType')?.value === 'fixed'"
+                                class="px-4 pb-4 pt-2 border-t border-slate-200 bg-slate-50/50">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Precio por entrada</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-3 text-slate-500 font-medium">$</span>
+                                    <input type="number" formControlName="defaultPrice" placeholder="0"
+                                        class="w-full pl-8 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pay What You Want -->
+                        <div class="border-2 rounded-xl transition-all"
+                            [class.border-primary]="eventForm.get('pricingType')?.value === 'pay-what-you-want'"
+                            [class.shadow-md]="eventForm.get('pricingType')?.value === 'pay-what-you-want'"
+                            [class.border-slate-200]="eventForm.get('pricingType')?.value !== 'pay-what-you-want'">
+                            <label
+                                class="flex items-start gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-xl">
+                                <input type="radio" formControlName="pricingType" value="pay-what-you-want"
+                                    class="mt-1 h-5 w-5 text-primary border-slate-300 focus:ring-2 focus:ring-primary/20">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-slate-900">A la gorra</div>
+                                    <div class="text-sm text-slate-600">El cliente decide cuánto pagar</div>
+                                </div>
+                            </label>
+                            <div *ngIf="eventForm.get('pricingType')?.value === 'pay-what-you-want'"
+                                class="px-4 pb-4 pt-2 border-t border-slate-200 bg-slate-50/50">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Precio sugerido
                                     (opcional)</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-2 text-sm text-slate-500">$</span>
+                                    <span class="absolute left-4 top-3 text-slate-500 font-medium">$</span>
                                     <input type="number" formControlName="suggestedPrice" placeholder="0"
-                                        class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                                        class="w-full pl-8 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 </div>
-                                <p class="mt-1 text-xs text-slate-500">Este monto se mostrará como referencia</p>
+                                <p class="mt-2 text-xs text-slate-500">Este monto se mostrará como referencia</p>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Free Entry Option -->
-                    <div class="border rounded-lg transition-all"
-                        [class.border-slate-900]="eventForm.get('pricingType')?.value === 'free'"
-                        [class.border-slate-300]="eventForm.get('pricingType')?.value !== 'free'">
-
-                        <label class="flex items-start gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors">
-                            <input type="radio" formControlName="pricingType" value="free"
-                                class="mt-1 h-4 w-4 text-slate-900 border-slate-300">
-                            <div class="flex-1">
-                                <div class="font-medium text-slate-900">Entrada gratuita</div>
-                                <div class="text-sm text-slate-600">Sin costo para los asistentes</div>
-                            </div>
-                        </label>
+                        <!-- Free Entry -->
+                        <div class="border-2 rounded-xl transition-all"
+                            [class.border-primary]="eventForm.get('pricingType')?.value === 'free'"
+                            [class.shadow-md]="eventForm.get('pricingType')?.value === 'free'"
+                            [class.border-slate-200]="eventForm.get('pricingType')?.value !== 'free'">
+                            <label
+                                class="flex items-start gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors rounded-xl">
+                                <input type="radio" formControlName="pricingType" value="free"
+                                    class="mt-1 h-5 w-5 text-primary border-slate-300 focus:ring-2 focus:ring-primary/20">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-slate-900">Entrada gratuita</div>
+                                    <div class="text-sm text-slate-600">Sin costo para los asistentes</div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-4">
-                <h3 class="text-base font-semibold text-slate-900 border-b pb-2">Gestión de Pagos</h3>
+            <!-- STEP 3: Payment Management -->
+            <div *ngIf="currentStep === 3" class="space-y-6 animate-fadeIn">
+                <h3 class="text-lg font-semibold text-slate-900">Gestión de Pagos</h3>
                 <p class="text-sm text-slate-600">¿Cómo querés gestionar los pagos de este evento?</p>
 
                 <div class="space-y-3">
-                    <!-- Platform Payment Option -->
-                    <div class="border rounded-lg transition-all"
-                        [class.border-slate-900]="eventForm.get('paymentMethod')?.value === 'platform'"
-                        [class.border-slate-300]="eventForm.get('paymentMethod')?.value !== 'platform'">
-
+                    <!-- Platform Payment -->
+                    <div class="border-2 rounded-xl transition-all"
+                        [class.border-primary]="eventForm.get('paymentMethod')?.value === 'platform'"
+                        [class.shadow-md]="eventForm.get('paymentMethod')?.value === 'platform'"
+                        [class.border-slate-200]="eventForm.get('paymentMethod')?.value !== 'platform'">
                         <label
-                            class="flex items-start gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-lg">
+                            class="flex items-start gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-xl">
                             <input type="radio" formControlName="paymentMethod" value="platform"
-                                class="mt-1 h-4 w-4 text-slate-900 border-slate-300">
+                                class="mt-1 h-5 w-5 text-primary border-slate-300 focus:ring-2 focus:ring-primary/20">
                             <div class="flex-1">
-                                <div class="font-medium text-slate-900">Cobro por la plataforma</div>
+                                <div class="font-semibold text-slate-900">Cobro por la plataforma</div>
                                 <div class="text-sm text-slate-600">Los clientes pagan y vos recibís el dinero en tu
-                                    cuenta
-                                    bancaria</div>
+                                    cuenta bancaria</div>
                             </div>
                         </label>
-
-                        <!-- Bank Info Fields (inside card) -->
                         <div *ngIf="eventForm.get('paymentMethod')?.value === 'platform'"
-                            class="px-3 pb-3 pt-2 border-t border-slate-200 bg-slate-50/50" formGroupName="bankInfo">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            class="px-4 pb-4 pt-2 border-t border-slate-200 bg-slate-50/50" formGroupName="bankInfo">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-medium text-slate-700 mb-1">Alias</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Alias</label>
                                     <input type="text" formControlName="alias" placeholder="enpuerta.mp"
-                                        class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 </div>
-
                                 <div>
-                                    <label class="block text-xs font-medium text-slate-700 mb-1">CBU</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">CBU</label>
                                     <input type="text" formControlName="cbu" placeholder="0000003100010000000001"
                                         pattern="[0-9]*" inputmode="numeric"
-                                        class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 </div>
-
                                 <div>
-                                    <label class="block text-xs font-medium text-slate-700 mb-1">Titular</label>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Titular</label>
                                     <input type="text" formControlName="titular" placeholder="Nombre del titular"
-                                        class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 </div>
-
                                 <div>
-                                    <label class="block text-xs font-medium text-slate-700 mb-1">Teléfono para
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Teléfono para
                                         comprobantes</label>
                                     <input type="tel" formControlName="telefonoComprobantes"
                                         placeholder="+5493511234567"
-                                        class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Contact Only Option -->
-                    <div class="border rounded-lg transition-all"
-                        [class.border-slate-900]="eventForm.get('paymentMethod')?.value === 'contact'"
-                        [class.border-slate-300]="eventForm.get('paymentMethod')?.value !== 'contact'">
-
+                    <!-- Contact Only -->
+                    <div class="border-2 rounded-xl transition-all"
+                        [class.border-primary]="eventForm.get('paymentMethod')?.value === 'contact'"
+                        [class.shadow-md]="eventForm.get('paymentMethod')?.value === 'contact'"
+                        [class.border-slate-200]="eventForm.get('paymentMethod')?.value !== 'contact'">
                         <label
-                            class="flex items-start gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-lg">
+                            class="flex items-start gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-xl">
                             <input type="radio" formControlName="paymentMethod" value="contact"
-                                class="mt-1 h-4 w-4 text-slate-900 border-slate-300">
+                                class="mt-1 h-5 w-5 text-primary border-slate-300 focus:ring-2 focus:ring-primary/20">
                             <div class="flex-1">
-                                <div class="font-medium text-slate-900">Solo contacto directo</div>
+                                <div class="font-semibold text-slate-900">Solo contacto directo</div>
                                 <div class="text-sm text-slate-600">Los clientes te contactan directamente para
-                                    coordinar el
-                                    pago</div>
+                                    coordinar el pago</div>
                             </div>
                         </label>
-
-                        <!-- Contact Info Fields (inside card) -->
                         <div *ngIf="eventForm.get('paymentMethod')?.value === 'contact'"
-                            class="px-3 pb-3 pt-2 border-t border-slate-200 bg-slate-50/50" formGroupName="contactInfo">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            class="px-4 pb-4 pt-2 border-t border-slate-200 bg-slate-50/50" formGroupName="contactInfo">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-medium text-slate-700 mb-1">Nombre de
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Nombre de
                                         contacto</label>
                                     <input type="text" formControlName="contactName" placeholder="Tu nombre"
-                                        class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 </div>
-
                                 <div>
-                                    <label class="block text-xs font-medium text-slate-700 mb-1">Teléfono de
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Teléfono de
                                         contacto</label>
                                     <input type="tel" formControlName="contactPhone" placeholder="+5493511234567"
-                                        class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500">
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 </div>
                             </div>
                         </div>
@@ -327,23 +372,30 @@
                 </div>
             </div>
 
-            <!-- Info Message -->
-            <div class="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p class="text-sm text-blue-800">
-                    <strong>💡 Nota:</strong> Podrás cargar las funciones una vez que hayas creado el evento.
-                </p>
-            </div>
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between gap-3 pt-6 border-t border-slate-200">
+                <div>
+                    <a *ngIf="currentStep === 1" routerLink="/events"
+                        class="px-6 py-2.5 border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors inline-block">
+                        Cancelar
+                    </a>
+                    <button *ngIf="currentStep > 1" type="button" (click)="previousStep()"
+                        class="px-6 py-2.5 border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors">
+                        ← Anterior
+                    </button>
+                </div>
 
-            <!-- Buttons -->
-            <div class="flex justify-end gap-3 pt-4">
-                <a routerLink="/events"
-                    class="px-4 py-2 border border-slate-300 text-slate-700 rounded-full hover:bg-slate-50">
-                    Cancelar
-                </a>
-                <button type="submit" [disabled]="eventForm.invalid || loading"
-                    class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-full disabled:opacity-50">
-                    {{ loading ? 'Guardando...' : 'Guardar' }}
-                </button>
+                <div>
+                    <button *ngIf="currentStep < totalSteps" type="button" (click)="nextStep()"
+                        [disabled]="!canProceedToNextStep()"
+                        class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors shadow-sm">
+                        Siguiente →
+                    </button>
+                    <button *ngIf="currentStep === totalSteps" type="submit" [disabled]="eventForm.invalid || loading"
+                        class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors shadow-sm">
+                        {{ loading ? 'Guardando...' : 'Guardar evento' }}
+                    </button>
+                </div>
             </div>
         </form>
     </div>

@@ -13,6 +13,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      
+      # Build all projects
+      - name: Build Admin
+        run: npm run build:admin
+      
+      - name: Build Public
+        run: npm run build:public
+      
+      - name: Build Checkin
+        run: npm run build:checkin
+      
+      # Deploy to Firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

@@ -15,31 +15,81 @@
         class="bg-white p-10 rounded-xl shadow-sm text-center text-slate-500">
         No hay funciones. <br> Comenzá creando la primera función.
         <div class="mt-4">
-            <button (click)="goToNewFunction()" class="bg-slate-900 text-white px-4 py-2 rounded-full">
+            <button (click)="goToNewFunction()"
+                class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-lg font-medium shadow-sm transition-colors">
                 + Crear primera función
             </button>
         </div>
     </div>
 
-    <!-- Functions Table -->
-    <div *ngIf="(functions$ | async)?.length" class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <!-- Mobile Card View -->
+    <div *ngIf="(functions$ | async)?.length" class="md:hidden space-y-4">
+        <div *ngFor="let func of functions$ | async" class="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+            <!-- Date/Time -->
+            <div class="mb-3">
+                <div class="font-semibold text-slate-900 text-lg">
+                    {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'d MMM, y':'':'es-AR') : (func.dateTime |
+                    date:'d MMM, y':'':'es-AR') }}
+                </div>
+                <div class="text-slate-600">
+                    {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'HH:mm') : (func.dateTime | date:'HH:mm')
+                    }} hs
+                </div>
+            </div>
+
+            <!-- Capacity, Price & Status -->
+            <div class="flex items-center gap-4 mb-3 flex-wrap">
+                <div class="text-sm">
+                    <span class="text-slate-600">Capacidad:</span>
+                    <span class="font-semibold text-slate-900 ml-1">{{ func.capacity }}</span>
+                </div>
+                <div class="text-sm">
+                    <span class="text-slate-600">Precio:</span>
+                    <span class="font-semibold text-slate-900 ml-1">${{ func.price }}</span>
+                </div>
+                <app-status-badge [status]="func.status"></app-status-badge>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col gap-2">
+                <button (click)="editFunction(func.functionId)"
+                    class="w-full px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors">
+                    ✏️ Editar
+                </button>
+                <button (click)="viewBookings(func.functionId)"
+                    class="w-full px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-sm font-medium transition-colors">
+                    📋 Reservas
+                </button>
+                <button (click)="viewLive(func.functionId)"
+                    class="w-full px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors">
+                    📡 En Vivo
+                </button>
+                <button (click)="cancelFunction(func)" *ngIf="func.status === 'open'"
+                    class="w-full px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors">
+                    ❌ Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Table View -->
+    <div *ngIf="(functions$ | async)?.length" class="hidden md:block bg-white rounded-xl shadow-sm overflow-hidden">
         <table class="min-w-full">
             <thead class="bg-slate-100 text-slate-600 text-sm">
                 <tr>
-                    <th class="px-4 py-3 text-left">Fecha/Hora</th>
-                    <th class="px-4 py-3 text-left">Capacidad</th>
-                    <th class="px-4 py-3 text-left">Precio</th>
-                    <th class="px-4 py-3 text-left">Estado</th>
-                    <th class="px-4 py-3 text-right">Acciones</th>
+                    <th class="px-4 py-3 text-left font-semibold">Fecha/Hora</th>
+                    <th class="px-4 py-3 text-left font-semibold">Capacidad</th>
+                    <th class="px-4 py-3 text-left font-semibold">Precio</th>
+                    <th class="px-4 py-3 text-left font-semibold">Estado</th>
+                    <th class="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y text-sm">
-                <tr *ngFor="let func of functions$ | async" class="hover:bg-slate-50">
+                <tr *ngFor="let func of functions$ | async" class="hover:bg-slate-50 transition-colors">
                     <td class="px-4 py-3">
                         <div class="font-medium text-slate-900">
-                            {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'d MMM, y') : (func.dateTime |
-                            date:'d
-                            MMM, y') }}
+                            {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'d MMM, y':'':'es-AR') :
+                            (func.dateTime | date:'d MMM, y':'':'es-AR') }}
                         </div>
                         <div class="text-slate-600">
                             {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'HH:mm') : (func.dateTime |
@@ -51,19 +101,25 @@
                     <td class="px-4 py-3">
                         <app-status-badge [status]="func.status"></app-status-badge>
                     </td>
-                    <td class="px-4 py-3 text-right space-x-2">
-                        <button (click)="editFunction(func.functionId)"
-                            class="text-slate-600 hover:text-slate-900 text-sm font-medium">
-                            Editar
-                        </button>
-                        <button (click)="viewBookings(func.functionId)"
-                            class="text-amber-600 hover:text-amber-700 text-sm font-medium">
-                            Reservas
-                        </button>
-                        <button (click)="viewLive(func.functionId)"
-                            class="text-slate-900 hover:text-slate-700 text-sm font-medium">
-                            En Vivo
-                        </button>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button (click)="editFunction(func.functionId)"
+                                class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-medium transition-colors">
+                                ✏️ Editar
+                            </button>
+                            <button (click)="viewBookings(func.functionId)"
+                                class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-md text-xs font-medium transition-colors">
+                                📋 Reservas
+                            </button>
+                            <button (click)="viewLive(func.functionId)"
+                                class="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-md text-xs font-medium transition-colors">
+                                📡 En Vivo
+                            </button>
+                            <button (click)="cancelFunction(func)" *ngIf="func.status === 'open'"
+                                class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium transition-colors">
+                                ❌ Cancelar
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>

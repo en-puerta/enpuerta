@@ -17,6 +17,10 @@ export class AdminEventForm implements OnInit {
   loading = false;
   organizationId: string | null = null;
 
+  // Wizard state
+  currentStep = 1;
+  totalSteps = 3;
+
   constructor(
     private fb: FormBuilder,
     private eventService: EventService,
@@ -96,6 +100,67 @@ export class AdminEventForm implements OnInit {
       }
       this.loading = false;
     });
+  }
+
+  // Wizard navigation methods
+  nextStep(): void {
+    if (this.canProceedToNextStep()) {
+      this.currentStep++;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      // Only allow going to previous steps or if current step is valid
+      if (step < this.currentStep || this.canProceedToNextStep()) {
+        this.currentStep = step;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
+
+  canProceedToNextStep(): boolean {
+    switch (this.currentStep) {
+      case 1:
+        // Step 1: Basic Information
+        return (this.eventForm.get('nameInternal')?.valid ?? false) &&
+          (this.eventForm.get('aliasPublic')?.valid ?? false) &&
+          (this.eventForm.get('eventType')?.valid ?? false) &&
+          (this.eventForm.get('defaultCapacity')?.valid ?? false) &&
+          (this.eventForm.get('status')?.valid ?? false);
+      case 2:
+        // Step 2: Functions & Pricing
+        const functionTypeValid = this.eventForm.get('functionType')?.valid ?? false;
+        const pricingTypeValid = this.eventForm.get('pricingType')?.valid ?? false;
+
+        // If single function, validate date and time
+        if (this.eventForm.get('functionType')?.value === 'single') {
+          return functionTypeValid && pricingTypeValid &&
+            !!this.eventForm.get('functionDate')?.value &&
+            !!this.eventForm.get('functionTime')?.value;
+        }
+
+        return functionTypeValid && pricingTypeValid;
+      case 3:
+        // Step 3: Payment - always valid (fields are optional based on selection)
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  isStepComplete(step: number): boolean {
+    if (step > this.currentStep) return false;
+    if (step === this.currentStep) return this.canProceedToNextStep();
+    return true; // Previous steps are considered complete
   }
 
   async onSubmit(): Promise<void> {

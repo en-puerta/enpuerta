@@ -19,6 +19,7 @@ export class BookingFormComponent implements OnInit {
   submitting = false;
   availableCapacity = 0;
   errorMessage = '';
+  isClosedForBooking = false; // New property
 
   constructor(
     private fb: FormBuilder,
@@ -113,7 +114,12 @@ export class BookingFormComponent implements OnInit {
       this.availableCapacity = func.capacity - sold;
 
       // Validations
-      if (func.status !== 'open') {
+      // Check auto-close FIRST (before manual status)
+      if (this.functionService.isClosedForBooking(func)) {
+        this.isClosedForBooking = true;
+        this.errorMessage = this.functionService.getClosedMessage(func);
+        this.bookingForm.disable();
+      } else if (func.status !== 'open') {
         this.errorMessage = 'La venta para esta función está cerrada.';
         this.bookingForm.disable();
       } else if (this.availableCapacity <= 0) {
@@ -128,6 +134,16 @@ export class BookingFormComponent implements OnInit {
 
       this.cdr.detectChanges();
     });
+  }
+
+  getWhatsAppLink(): string {
+    if (!this.event || !this.event.contactInfo?.contactPhone) {
+      return '';
+    }
+
+    const phone = this.event.contactInfo.contactPhone.replace(/\D/g, ''); // Remove non-digits
+    const message = `Hola, no llegué a reservar pero voy a estar yendo al evento "${this.event.aliasPublic}"`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   }
 
   async onSubmit() {
@@ -182,19 +198,19 @@ export class BookingFormComponent implements OnInit {
         qrCodeData: '' // Will be filled later or generated on fly
       };
 
-      console.log('Creating booking...', booking);
+
       const docRef = await this.bookingService.createBooking(this.event.eventId, this.function.functionId, booking);
-      console.log('Booking created with ID:', docRef.id);
+
 
       // Reset submitting BEFORE navigation to prevent infinite loading
       this.submitting = false;
       this.cdr.detectChanges();
 
       // Navigate to confirmation page
-      console.log('Navigating to confirmation...');
+
       try {
         const navigationResult = await this.router.navigate(['/booking', this.event.eventId, this.function.functionId, docRef.id, 'confirmed']);
-        console.log('Navigation result:', navigationResult);
+
 
         if (!navigationResult) {
           console.error('Navigation failed!');

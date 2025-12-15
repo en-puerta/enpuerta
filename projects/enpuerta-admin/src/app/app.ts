@@ -12,6 +12,7 @@ export class App {
   showLayout = true;
   pageTitle = 'Admin';
   isSidebarOpen = false;
+  currentYear = new Date().getFullYear();
 
   constructor(private router: Router) {
     this.router.events.pipe(

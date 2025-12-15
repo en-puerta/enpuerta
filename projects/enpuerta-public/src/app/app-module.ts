@@ -21,6 +21,7 @@ import { FunctionListComponent } from './components/function-list/function-list'
 import { BookingSummaryComponent } from './components/booking-summary/booking-summary';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner';
 import { FooterComponent } from './components/footer/footer';
+import { TimeUntilClosePipe } from './pipes/time-until-close.pipe';
 
 // Register Spanish locale
 registerLocaleData(localeEs);
@@ -38,7 +39,8 @@ registerLocaleData(localeEs);
     FunctionListComponent,
     BookingSummaryComponent,
     LoadingSpinnerComponent,
-    FooterComponent
+    FooterComponent,
+    TimeUntilClosePipe
   ],
   imports: [
     BrowserModule,

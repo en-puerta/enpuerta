@@ -4,10 +4,14 @@
     <p class="text-sm text-slate-600 mb-6">{{ eventName }}</p>
 
     <!-- New Function Button -->
-    <div class="flex justify-end mb-6">
-        <button (click)="goToNewFunction()" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-full">
+    <div class="flex justify-end mb-6" *ngIf="(event$ | async) as event">
+        <button (click)="goToNewFunction()" *ngIf="event.status !== 'finished'"
+            class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-full">
             + Nueva función
         </button>
+        <div *ngIf="event.status === 'finished'" class="text-sm text-slate-500 italic">
+            Este evento está finalizado. No se pueden agregar nuevas funciones.
+        </div>
     </div>
 
     <!-- Empty State -->
@@ -48,25 +52,41 @@
                     <span class="font-semibold text-slate-900 ml-1">${{ func.price }}</span>
                 </div>
                 <app-status-badge [status]="func.status"></app-status-badge>
+                <!-- Auto-close indicator -->
+                <span *ngIf="isClosedForBooking(func) && func.status === 'open'"
+                    class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full whitespace-nowrap">
+                    ⏰ Auto-cerrado
+                </span>
             </div>
 
             <!-- Actions -->
             <div class="flex flex-col gap-2">
-                <button (click)="editFunction(func.functionId)"
+                <!-- Show these buttons only if NOT finished -->
+                <button (click)="editFunction(func.functionId)" *ngIf="func.status !== 'finished'"
                     class="w-full px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors">
                     ✏️ Editar
                 </button>
-                <button (click)="viewBookings(func.functionId)"
+                <button (click)="viewBookings(func.functionId)" *ngIf="func.status !== 'finished'"
                     class="w-full px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-sm font-medium transition-colors">
                     📋 Reservas
                 </button>
-                <button (click)="viewLive(func.functionId)"
+                <button (click)="viewLive(func.functionId)" *ngIf="func.status !== 'finished'"
                     class="w-full px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors">
                     📡 En Vivo
+                </button>
+                <button (click)="finalizeFunction(func)" *ngIf="func.status === 'open'"
+                    class="w-full px-4 py-2.5 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg text-sm font-medium transition-colors">
+                    ✅ Finalizar
                 </button>
                 <button (click)="cancelFunction(func)" *ngIf="func.status === 'open'"
                     class="w-full px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors">
                     ❌ Cancelar
+                </button>
+
+                <!-- Show statistics button only if finished -->
+                <button (click)="viewStatistics(func.functionId)" *ngIf="func.status === 'finished'"
+                    class="w-full px-4 py-2.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors">
+                    📊 Estadísticas
                 </button>
             </div>
         </div>
@@ -99,25 +119,44 @@
                     <td class="px-4 py-3 text-slate-600">{{ func.capacity }}</td>
                     <td class="px-4 py-3 font-medium text-slate-900">${{ func.price }}</td>
                     <td class="px-4 py-3">
-                        <app-status-badge [status]="func.status"></app-status-badge>
+                        <div class="flex items-center gap-2">
+                            <app-status-badge [status]="func.status"></app-status-badge>
+                            <!-- Auto-close indicator -->
+                            <span *ngIf="isClosedForBooking(func) && func.status === 'open'"
+                                class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full whitespace-nowrap"
+                                title="Cerrado automáticamente por proximidad al horario">
+                                ⏰ Auto-cerrado
+                            </span>
+                        </div>
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <button (click)="editFunction(func.functionId)"
+                            <!-- Show these buttons only if NOT finished -->
+                            <button (click)="editFunction(func.functionId)" *ngIf="func.status !== 'finished'"
                                 class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-medium transition-colors">
                                 ✏️ Editar
                             </button>
-                            <button (click)="viewBookings(func.functionId)"
+                            <button (click)="viewBookings(func.functionId)" *ngIf="func.status !== 'finished'"
                                 class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-md text-xs font-medium transition-colors">
                                 📋 Reservas
                             </button>
-                            <button (click)="viewLive(func.functionId)"
+                            <button (click)="viewLive(func.functionId)" *ngIf="func.status !== 'finished'"
                                 class="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-md text-xs font-medium transition-colors">
                                 📡 En Vivo
+                            </button>
+                            <button (click)="finalizeFunction(func)" *ngIf="func.status === 'open'"
+                                class="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-600 rounded-md text-xs font-medium transition-colors">
+                                ✅ Finalizar
                             </button>
                             <button (click)="cancelFunction(func)" *ngIf="func.status === 'open'"
                                 class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium transition-colors">
                                 ❌ Cancelar
+                            </button>
+
+                            <!-- Show statistics button only if finished -->
+                            <button (click)="viewStatistics(func.functionId)" *ngIf="func.status === 'finished'"
+                                class="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-md text-xs font-medium transition-colors">
+                                📊 Estadísticas
                             </button>
                         </div>
                     </td>

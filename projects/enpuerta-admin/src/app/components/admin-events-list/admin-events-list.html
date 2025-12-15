@@ -6,10 +6,49 @@
       <p class="text-sm text-slate-600">Gestioná tus obras, shows y actividades.</p>
     </div>
 
-    <button (click)="goToNewEvent()"
-      class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm">
-      + Nuevo evento
-    </button>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <!-- New Event Button -->
+      <button (click)="goToNewEvent()"
+        class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm">
+        + Nuevo evento
+      </button>
+    </div>
+  </div>
+
+  <!-- Cafecito Banner - Dismissible (Redesigned) -->
+  <div *ngIf="!cafecitoHidden"
+    class="relative bg-gradient-to-r from-amber-100 via-orange-100 to-amber-100 border-2 border-amber-400 rounded-xl p-6 mb-6 shadow-lg overflow-hidden">
+    <!-- Decorative background -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 right-0 text-9xl">☕</div>
+    </div>
+
+    <div class="relative flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4 flex-1">
+        <div class="text-5xl animate-bounce">☕</div>
+        <div>
+          <h3 class="text-lg font-bold text-amber-900 mb-1">
+            ¿Te gusta EnPuerta?
+          </h3>
+          <p class="text-sm text-amber-800">
+            Esta plataforma es <strong>100% gratuita</strong> para vos. Apoyala con un cafecito para seguir
+            mejorándola
+            💛
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="https://cafecito.app/enpuerta" target="_blank" rel="noopener noreferrer"
+          class="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-xl transform hover:scale-105 whitespace-nowrap">
+          ☕ Invitar un cafecito
+        </a>
+        <button (click)="hideCafecito()"
+          class="text-amber-700 hover:text-amber-900 text-2xl leading-none p-2 hover:bg-amber-200 rounded-lg transition-colors"
+          title="Cerrar">
+          ✕
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Filters -->
@@ -187,6 +226,10 @@
               <button (click)="viewFunctions(event.eventId)"
                 class="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-md text-xs font-medium transition-colors">
                 🎭 Funciones
+              </button>
+              <button (click)="finalizeEvent(event)" *ngIf="event.status === 'active'"
+                class="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-600 rounded-md text-xs font-medium transition-colors">
+                ✅ Finalizar
               </button>
               <button (click)="cancelEvent(event)" *ngIf="event.status === 'active'"
                 class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium transition-colors">

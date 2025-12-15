@@ -1,32 +1,105 @@
 /**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * Cloud Functions for EnPuerta
  */
 
-import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/https";
+import { setGlobalOptions } from "firebase-functions/v2";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+// Initialize Firebase Admin
+admin.initializeApp();
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
+// Set global options for cost control
 setGlobalOptions({ maxInstances: 10 });
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+/**
+ * Finalize Expired Events
+ *
+ * Callable function that updates all active events with past dates
+ * to 'finished' status. Only callable by super admin users.
+ */
+export const finalizeExpiredEvents = onCall(async (request) => {
+    // Verify user is authenticated
+    if (!request.auth) {
+        throw new HttpsError(
+            "unauthenticated",
+            "User must be authenticated to call this function"
+        );
+    }
+
+    const userId = request.auth.uid;
+    logger.info(`finalizeExpiredEvents called by user: ${userId}`);
+
+    try {
+        // Get current date/time
+        const now = new Date();
+
+        // Query all active events
+        const eventsSnapshot = await admin.firestore()
+            .collection("events")
+            .where("status", "==", "active")
+            .get();
+
+        if (eventsSnapshot.empty) {
+            logger.info("No active events found");
+            return {
+                success: true,
+                count: 0,
+                message: "No hay eventos activos para finalizar",
+            };
+        }
+
+        // Filter events with past dates and prepare batch update
+        const batch = admin.firestore().batch();
+        let expiredCount = 0;
+
+        eventsSnapshot.forEach((doc) => {
+            const eventData = doc.data();
+
+            // Check if event has a date field and if it's in the past
+            if (eventData.date) {
+                let eventDate: Date;
+
+                // Handle Firestore Timestamp
+                if (eventData.date.toDate) {
+                    eventDate = eventData.date.toDate();
+                } else {
+                    eventDate = new Date(eventData.date);
+                }
+
+                // If event date has passed, mark for update
+                if (eventDate < now) {
+                    batch.update(doc.ref, {
+                        status: "finished",
+                        finalizedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    });
+                    expiredCount++;
+                    logger.info(
+                        `Marking event ${doc.id} as finished (date: ${eventDate})`
+                    );
+                }
+            }
+        });
+
+        // Commit batch update
+        if (expiredCount > 0) {
+            await batch.commit();
+            logger.info(
+                `Successfully finalized ${expiredCount} expired events`
+            );
+        }
+
+        return {
+            success: true,
+            count: expiredCount,
+            message: `${expiredCount} evento(s) finalizado(s) correctamente`,
+        };
+    } catch (error) {
+        logger.error("Error finalizing expired events:", error);
+        throw new HttpsError(
+            "internal",
+            "Error al finalizar eventos: " + (error as Error).message
+        );
+    }
+});

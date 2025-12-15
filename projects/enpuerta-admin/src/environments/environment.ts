@@ -1,5 +1,8 @@
 export const environment = {
     production: false,
+    googlePlacesApiKey: 'AIzaSyAd5e1659s_k9sz9G9-JYAZ9HZ-VZuBeMQ',
+    cafecitoUrl: 'https://cafecito.app/enpuerta',
+    suggestedDonation: 5000,
     firebase: {
         apiKey: "AIzaSyB7ZLCYh3nWgUOEKOzfxDIReQr0PnRmTHQ",
         authDomain: "enpuerta-f7238.firebaseapp.com",

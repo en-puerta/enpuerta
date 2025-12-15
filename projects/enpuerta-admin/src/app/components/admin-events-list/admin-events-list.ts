@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { EventService, AuthService } from '@enpuerta/shared';
 import { Event } from '@enpuerta/shared';
 
@@ -20,7 +20,7 @@ export class AdminEventsList implements OnInit {
   selectedType = 'Todos';
   selectedStatus = 'Todos';
   eventTypes = ['Todos', 'Teatro', 'Stand-up', 'Música', 'Taller', 'Otro'];
-  eventStatuses = ['Todos', 'active', 'inactive'];
+  eventStatuses = ['Todos', 'active', 'inactive', 'finished'];
 
   sortBy: SortColumn = 'nameInternal';
   sortDirection: SortDirection = 'asc';
@@ -32,13 +32,26 @@ export class AdminEventsList implements OnInit {
     direction: 'asc'
   });
 
+  // Cafecito banner
+  cafecitoHidden = false;
+  currentYear = new Date().getFullYear();
+
   constructor(
     private eventService: EventService,
     private authService: AuthService,
     private router: Router
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
+    // Check if Cafecito banner was dismissed
+    const dismissed = localStorage.getItem('cafecitoDismissed');
+    const dismissedDate = localStorage.getItem('cafecitoDismissedDate');
+
+    if (dismissed && dismissedDate) {
+      const daysSinceDismissal = (Date.now() - parseInt(dismissedDate)) / (1000 * 60 * 60 * 24);
+      this.cafecitoHidden = daysSinceDismissal < 7; // Show again after 7 days
+    }
+
     // Get events for current organization using switchMap to flatten observables
     this.events$ = this.authService.currentOrganizationId$.pipe(
       switchMap(orgId => {
@@ -135,5 +148,51 @@ export class AdminEventsList implements OnInit {
       console.error('Error canceling event:', error);
       alert('Hubo un error al cancelar el evento. Por favor intentá de nuevo.');
     }
+  }
+
+  async finalizeEvent(event: Event) {
+    if (!confirm(`¿Estás seguro de que querés finalizar el evento "${event.nameInternal}"? Esto también finalizará todas sus funciones.`)) {
+      return;
+    }
+
+    try {
+      // Import Firestore functions
+      const { getFirestore, collection, query, where, getDocs, writeBatch, doc } = await import('@angular/fire/firestore');
+      const firestore = getFirestore();
+
+      console.log('Finalizing event:', event.eventId);
+
+      // Update event status
+      await this.eventService.updateEvent(event.eventId, { status: 'finished' as any });
+
+      // Get all functions for this event (from subcollection)
+      const eventDocRef = doc(firestore, 'events', event.eventId);
+      const functionsRef = collection(eventDocRef, 'functions');
+      const snapshot = await getDocs(functionsRef);
+
+      console.log('Functions found:', snapshot.size);
+
+      // Batch update all functions to finished
+      if (!snapshot.empty) {
+        const batch = writeBatch(firestore);
+        snapshot.forEach((funcDoc) => {
+          console.log('Updating function:', funcDoc.id);
+          batch.update(funcDoc.ref, { status: 'finished' });
+        });
+        await batch.commit();
+        console.log('Batch committed successfully');
+      }
+
+      alert(`Evento y ${snapshot.size} función(es) finalizados correctamente`);
+    } catch (error) {
+      console.error('Error finalizing event:', error);
+      alert('Hubo un error al finalizar el evento. Por favor intentá de nuevo.');
+    }
+  }
+
+  hideCafecito(): void {
+    this.cafecitoHidden = true;
+    localStorage.setItem('cafecitoDismissed', 'true');
+    localStorage.setItem('cafecitoDismissedDate', Date.now().toString());
   }
 }

@@ -39,6 +39,7 @@
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "@zxing/ngx-scanner": "^21.0.0",
+    "browser-image-compression": "^2.0.2",
     "firebase": "^12.6.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

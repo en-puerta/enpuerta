@@ -32,7 +32,7 @@ export class AdminFunctionForm implements OnInit {
       time: ['', Validators.required],
       capacity: [100, [Validators.required, Validators.min(1)]],
       price: [0, [Validators.required, Validators.min(0)]],
-      autoCloseMinutesBefore: [60, Validators.required],
+      autoCloseMinutesBefore: [15, Validators.required],
       status: ['open', Validators.required]
     });
   }

@@ -100,7 +100,7 @@ export class BookingConfirmedComponent implements OnInit {
       `DTSTART:${formatDate(eventDate)}`,
       `DTEND:${formatDate(endDate)}`,
       `SUMMARY:${this.event.aliasPublic}`,
-      `DESCRIPTION:${this.event.descriptionShort || ''}`,
+      `DESCRIPTION:${this.event.description || this.event.descriptionShort || ''}`,
       `LOCATION:${this.event.locationAddress}`,
       'STATUS:CONFIRMED',
       'END:VEVENT',
@@ -162,7 +162,7 @@ export class BookingConfirmedComponent implements OnInit {
   getWhatsAppMessage(): string {
     const quantity = this.booking?.quantity || 0;
     const total = (this.function?.price || 0) * quantity;
-    const eventName = this.event?.nameInternal || '';
+    const eventName = this.event?.aliasPublic || '';
 
     // Format with dot as thousand separator (not comma)
     const formatPrice = (price: number) => {

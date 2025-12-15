@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService, OrganizationService, FunctionService, Event, AuthService } from '@enpuerta/shared';
+import { PlacesService } from '../../services/places.service';
+import { ImageService } from '../../services/image.service';
 import { take } from 'rxjs';
 
 @Component({
@@ -10,7 +12,7 @@ import { take } from 'rxjs';
   templateUrl: './admin-event-form.html',
   styleUrl: './admin-event-form.scss',
 })
-export class AdminEventForm implements OnInit {
+export class AdminEventForm implements OnInit, AfterViewInit {
   eventForm: FormGroup;
   isEditMode = false;
   eventId: string | null = null;
@@ -21,6 +23,15 @@ export class AdminEventForm implements OnInit {
   currentStep = 1;
   totalSteps = 3;
 
+  // Image upload
+  selectedImage: File | null = null;
+  imagePreview: string | null = null;
+  uploadProgress: number = 0;
+  imageError: string | null = null;
+
+  // Google Places Autocomplete
+  @ViewChild('locationInput') locationInput!: ElementRef<HTMLInputElement>;
+
   constructor(
     private fb: FormBuilder,
     private eventService: EventService,
@@ -28,13 +39,14 @@ export class AdminEventForm implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     public router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private placesService: PlacesService,
+    private imageService: ImageService
   ) {
     this.eventForm = this.fb.group({
       nameInternal: ['', Validators.required],
       aliasPublic: ['', Validators.required],
-      descriptionShort: [''],
-      descriptionLong: [''],
+      description: ['', Validators.required],
       eventType: ['teatro', Validators.required],
       coverImageUrl: [''],
       iconUrl: [''],
@@ -54,7 +66,7 @@ export class AdminEventForm implements OnInit {
       contactInfo: this.fb.group({
         contactName: [''],
         contactPhone: ['', [
-          Validators.pattern(/^\+?54\s?9?\s?\d{2,4}\s?\d{6,8}$/) // Formato argentino
+          Validators.pattern(/^(\+?54\s?9?\s?)?\d{6,10}$/) // Formato argentino más flexible
         ]]
       }),
       bankInfo: this.fb.group({
@@ -73,6 +85,23 @@ export class AdminEventForm implements OnInit {
       functionCapacity: [100],
       functionPrice: [0],
       functionAutoClose: [30]
+    });
+
+    // Listen to pricingType changes to update validators
+    this.eventForm.get('pricingType')?.valueChanges.subscribe(type => {
+      this.updateValidators(type);
+    });
+
+    // Listen to contactInfo changes to update form validity
+    this.eventForm.get('contactInfo.contactName')?.valueChanges.subscribe(() => {
+      this.eventForm.updateValueAndValidity();
+      console.log('ContactName changed, form valid:', this.eventForm.valid);
+      console.log('All errors:', this.getFormValidationErrors());
+    });
+    this.eventForm.get('contactInfo.contactPhone')?.valueChanges.subscribe(() => {
+      this.eventForm.updateValueAndValidity();
+      console.log('ContactPhone changed, form valid:', this.eventForm.valid);
+      console.log('All errors:', this.getFormValidationErrors());
     });
   }
 
@@ -96,6 +125,96 @@ export class AdminEventForm implements OnInit {
         this.loadEvent(id);
       }
     });
+
+    // Set initial validators based on current pricingType
+    const initialType = this.eventForm.get('pricingType')?.value;
+    if (initialType) {
+      this.updateValidators(initialType);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Initialize Google Places Autocomplete after view is ready
+    if (this.locationInput) {
+      this.placesService.initAutocomplete(
+        this.locationInput.nativeElement,
+        (place) => {
+          // Update form with selected address
+          const address = this.placesService.getFormattedAddress(place);
+          this.eventForm.patchValue({
+            locationAddress: address
+          });
+          this.cdr.detectChanges();
+        }
+      );
+    }
+  }
+
+  updateValidators(pricingType: string): void {
+    const contactName = this.eventForm.get('contactInfo.contactName');
+    const contactPhone = this.eventForm.get('contactInfo.contactPhone');
+    const defaultPrice = this.eventForm.get('defaultPrice');
+
+    // Clear all validators first
+    contactName?.clearValidators();
+    contactPhone?.clearValidators();
+    defaultPrice?.clearValidators();
+
+    if (pricingType === 'free' || pricingType === 'pay-what-you-want') {
+      // Contact info required for free and gorra events
+      contactName?.setValidators([Validators.required]);
+      contactPhone?.setValidators([
+        Validators.required,
+        Validators.pattern(/^(\+?54\s?9?\s?)?\d{6,10}$/)
+      ]);
+    } else {
+      // For fixed price, contact phone pattern only
+      contactPhone?.setValidators([
+        Validators.pattern(/^(\+?54\s?9?\s?)?\d{6,10}$/)
+      ]);
+    }
+
+    if (pricingType === 'fixed') {
+      // Default price required for fixed pricing
+      defaultPrice?.setValidators([Validators.required, Validators.min(1)]);
+    }
+
+    // Update validity
+    contactName?.updateValueAndValidity();
+    contactPhone?.updateValueAndValidity();
+    defaultPrice?.updateValueAndValidity();
+
+    // Update form validity
+    this.eventForm.updateValueAndValidity();
+
+    // Debug logs
+    console.log('=== Form Validation Debug ===');
+    console.log('Pricing Type:', pricingType);
+    console.log('Form Valid:', this.eventForm.valid);
+    console.log('Form Errors:', this.getFormValidationErrors());
+  }
+
+  getFormValidationErrors() {
+    const errors: any = {};
+    Object.keys(this.eventForm.controls).forEach(key => {
+      const control = this.eventForm.get(key);
+      if (control && control.invalid) {
+        if (control instanceof FormGroup) {
+          // For FormGroups, show nested errors
+          const nestedErrors: any = {};
+          Object.keys(control.controls).forEach(nestedKey => {
+            const nestedControl = control.get(nestedKey);
+            if (nestedControl && nestedControl.invalid) {
+              nestedErrors[nestedKey] = nestedControl.errors;
+            }
+          });
+          errors[key] = nestedErrors;
+        } else {
+          errors[key] = control.errors;
+        }
+      }
+    });
+    return errors;
   }
 
   loadEvent(id: string): void {
@@ -169,11 +288,76 @@ export class AdminEventForm implements OnInit {
     return true; // Previous steps are considered complete
   }
 
+  // Helper to combine date and time strings into Date object
+  combineDateAndTime(dateStr: string, timeStr: string): Date {
+    if (!dateStr || !timeStr) return new Date();
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return new Date(year, month - 1, day, hours, minutes);
+  }
+
+  // Image upload methods
+  onImageSelected(event: any): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.imageError = null;
+
+    // Validate image
+    const validation = this.imageService.validateImage(file);
+    if (!validation.valid) {
+      this.imageError = validation.error || 'Error al validar imagen';
+      return;
+    }
+
+    // Set selected image
+    this.selectedImage = file;
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      this.imagePreview = e.target?.result as string;
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImage(): void {
+    this.selectedImage = null;
+    this.imagePreview = null;
+    this.uploadProgress = 0;
+    this.imageError = null;
+
+    // Clear form value
+    this.eventForm.patchValue({ coverImageUrl: '' });
+  }
+
   async onSubmit(): Promise<void> {
     if (this.eventForm.invalid) return;
 
     this.loading = true;
     try {
+      let imageUrl = this.eventForm.value.coverImageUrl;
+
+      // Upload image if selected
+      if (this.selectedImage) {
+        // Create temporary event ID for new events
+        const tempEventId = this.eventId || `temp_${Date.now()}`;
+
+        imageUrl = await this.imageService.uploadEventImage(
+          this.selectedImage,
+          tempEventId,
+          (progress) => {
+            this.uploadProgress = progress;
+            this.cdr.detectChanges();
+          }
+        );
+
+        // Update form with new image URL
+        this.eventForm.patchValue({ coverImageUrl: imageUrl });
+      }
+
       if (this.isEditMode && this.eventId) {
         await this.eventService.updateEvent(this.eventId, this.eventForm.value);
       } else {
@@ -189,11 +373,16 @@ export class AdminEventForm implements OnInit {
 
         // If single function, create function automatically
         if (formValue.functionType === 'single') {
+          const functionDateTime = this.combineDateAndTime(
+            formValue.functionDate,
+            formValue.functionTime
+          );
+
           const functionData = {
-            dateTime: this.combineDateAndTime(formValue.functionDate, formValue.functionTime),
+            dateTime: functionDateTime,
             capacity: formValue.defaultCapacity || 100,
             price: formValue.defaultPrice || 0,
-            autoCloseMinutesBefore: formValue.functionAutoClose || 30,
+            autoCloseMinutesBefore: formValue.functionAutoClose || 15,
             status: 'open' as const,
             organizationId: this.organizationId
           };
@@ -203,17 +392,10 @@ export class AdminEventForm implements OnInit {
       this.router.navigate(['/events']);
     } catch (error) {
       console.error('Error saving event', error);
-      // Handle error notification
+      this.imageError = 'Error al guardar el evento. Por favor intentá de nuevo.';
     } finally {
       this.loading = false;
+      this.uploadProgress = 0;
     }
-  }
-
-  // Helper to combine date and time strings into Date object
-  combineDateAndTime(dateStr: string, timeStr: string): Date {
-    if (!dateStr || !timeStr) return new Date();
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    return new Date(year, month - 1, day, hours, minutes);
   }
 }

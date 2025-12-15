@@ -1,22 +1,43 @@
 <!-- Carousel Mode (for featured events) -->
 <div *ngIf="carousel" class="relative">
-    <div class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
-        <div *ngFor="let event of events"
-            class="flex-none w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start">
-            <app-event-card [event]="event" [nextFunction]="getFunctionData(event.eventId).nextFunction"
-                [functionsCount]="getFunctionData(event.eventId).count"
-                [isSoldOut]="getFunctionData(event.eventId).isSoldOut">
-            </app-event-card>
+    <!-- Left Arrow -->
+    <button
+        class="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white hover:bg-white/90 rounded-full shadow-xl border border-slate-300 transition-all"
+        (click)="scrollCarousel('left')">
+        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+    </button>
+
+    <!-- Right Arrow -->
+    <button
+        class="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white hover:bg-white/90 rounded-full shadow-xl border border-slate-300 transition-all"
+        (click)="scrollCarousel('right')">
+        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+
+    <div class="-mx-6 px-6">
+        <div #carouselContainer
+            class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth">
+            <div *ngFor="let event of events"
+                class="flex-none w-[70%] sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] snap-start">
+                <app-event-card [event]="event" [nextFunction]="getFunctionData(event.eventId).nextFunction"
+                    [functionsCount]="getFunctionData(event.eventId).count"
+                    [isSoldOut]="getFunctionData(event.eventId).isSoldOut">
+                </app-event-card>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Grid Mode (for all events) -->
-<div *ngIf="!carousel" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div *ngIf="!carousel" class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
     <div *ngFor="let event of events">
         <app-event-card [event]="event" [nextFunction]="getFunctionData(event.eventId).nextFunction"
             [functionsCount]="getFunctionData(event.eventId).count"
-            [isSoldOut]="getFunctionData(event.eventId).isSoldOut">
+            [isSoldOut]="getFunctionData(event.eventId).isSoldOut" [hideDescription]="true">
         </app-event-card>
     </div>
 </div>

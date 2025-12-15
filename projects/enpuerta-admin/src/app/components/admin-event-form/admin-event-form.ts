@@ -53,13 +53,19 @@ export class AdminEventForm implements OnInit {
       paymentMethod: ['contact'], // 'platform' or 'contact'
       contactInfo: this.fb.group({
         contactName: [''],
-        contactPhone: ['']
+        contactPhone: ['', [
+          Validators.pattern(/^\+?54\s?9?\s?\d{2,4}\s?\d{6,8}$/) // Formato argentino
+        ]]
       }),
       bankInfo: this.fb.group({
         alias: [''],
-        cbu: [''],
+        cbu: ['', [
+          Validators.pattern(/^\d{22}$/) // CBU debe ser 22 dígitos
+        ]],
         titular: [''],
-        telefonoComprobantes: ['']
+        telefonoComprobantes: ['', [
+          Validators.pattern(/^\+?54\s?9?\s?\d{2,4}\s?\d{6,8}$/) // Formato argentino
+        ]]
       }),
       // Single function fields (conditional)
       functionDate: [''],

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { EventService, FunctionService, BookingService, Event, Function } from '@enpuerta/shared';
 import { Observable, switchMap, combineLatest, map, of, shareReplay } from 'rxjs';
 
@@ -13,12 +14,15 @@ export class EventDetailComponent implements OnInit {
   event$: Observable<Event | undefined> | undefined;
   functions$: Observable<any[]> | undefined; // any to include availableCapacity
   loading = true;
+  window = window; // Make window available in template
+  encodeURIComponent = encodeURIComponent; // Make encodeURIComponent available in template
 
   constructor(
     private route: ActivatedRoute,
     private eventService: EventService,
     private functionService: FunctionService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
@@ -80,5 +84,19 @@ export class EventDetailComponent implements OnInit {
       }),
       shareReplay(1)
     );
+  }
+
+  copyLink(): void {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      alert('¡Enlace copiado al portapapeles!');
+    }).catch(err => {
+      console.error('Error copying link:', err);
+    });
+  }
+
+  getMapUrl(address: string): SafeResourceUrl {
+    const encodedAddress = encodeURIComponent(address);
+    const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodedAddress}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(mapUrl);
   }
 }

@@ -3,8 +3,10 @@ export interface Event {
     organizationId: string;
     nameInternal: string;
     aliasPublic: string;
-    descriptionShort: string;
-    descriptionLong: string;
+    description: string;
+    // Legacy fields - kept for backward compatibility
+    descriptionShort?: string;
+    descriptionLong?: string;
     eventType: string;
     coverImageUrl: string;
     iconUrl: string;
@@ -16,7 +18,7 @@ export interface Event {
     confirmationMessageTemplate: string;
     isSponsored?: boolean;
     sponsoredLevel?: string;
-    status: 'active' | 'inactive';
+    status: 'active' | 'inactive' | 'finished';
     functionType: 'single' | 'multiple';
     pricingType: 'fixed' | 'pay-what-you-want' | 'free';
     defaultPrice?: number; // Used for 'fixed' pricing

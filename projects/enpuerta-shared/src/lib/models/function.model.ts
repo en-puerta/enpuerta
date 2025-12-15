@@ -6,5 +6,5 @@ export interface Function {
     capacity: number;
     price: number;
     autoCloseMinutesBefore: number;
-    status: 'open' | 'closed' | 'soldout';
+    status: 'open' | 'closed' | 'soldout' | 'finished';
 }

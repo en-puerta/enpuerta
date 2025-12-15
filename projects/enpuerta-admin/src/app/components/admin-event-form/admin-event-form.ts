@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService, OrganizationService, FunctionService, Event, AuthService } from '@enpuerta/shared';
+import { PlacesService } from '../../services/places.service';
 import { take } from 'rxjs';
 
 @Component({
@@ -10,7 +11,7 @@ import { take } from 'rxjs';
   templateUrl: './admin-event-form.html',
   styleUrl: './admin-event-form.scss',
 })
-export class AdminEventForm implements OnInit {
+export class AdminEventForm implements OnInit, AfterViewInit {
   eventForm: FormGroup;
   isEditMode = false;
   eventId: string | null = null;
@@ -21,6 +22,9 @@ export class AdminEventForm implements OnInit {
   currentStep = 1;
   totalSteps = 3;
 
+  // Google Places Autocomplete
+  @ViewChild('locationInput') locationInput!: ElementRef<HTMLInputElement>;
+
   constructor(
     private fb: FormBuilder,
     private eventService: EventService,
@@ -28,13 +32,13 @@ export class AdminEventForm implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     public router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private placesService: PlacesService
   ) {
     this.eventForm = this.fb.group({
       nameInternal: ['', Validators.required],
       aliasPublic: ['', Validators.required],
-      descriptionShort: [''],
-      descriptionLong: [''],
+      description: ['', Validators.required],
       eventType: ['teatro', Validators.required],
       coverImageUrl: [''],
       iconUrl: [''],
@@ -96,6 +100,23 @@ export class AdminEventForm implements OnInit {
         this.loadEvent(id);
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Initialize Google Places Autocomplete after view is ready
+    if (this.locationInput) {
+      this.placesService.initAutocomplete(
+        this.locationInput.nativeElement,
+        (place) => {
+          // Update form with selected address
+          const address = this.placesService.getFormattedAddress(place);
+          this.eventForm.patchValue({
+            locationAddress: address
+          });
+          this.cdr.detectChanges();
+        }
+      );
+    }
   }
 
   loadEvent(id: string): void {

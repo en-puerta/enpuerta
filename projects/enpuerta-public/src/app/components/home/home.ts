@@ -74,6 +74,7 @@ export class HomeComponent implements OnInit {
             e.aliasPublic.toLowerCase().includes(query) ||
             e.nameInternal.toLowerCase().includes(query) ||
             e.locationAddress.toLowerCase().includes(query) ||
+            e.description?.toLowerCase().includes(query) ||
             e.descriptionShort?.toLowerCase().includes(query) ||
             e.descriptionLong?.toLowerCase().includes(query)
           );

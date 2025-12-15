@@ -3,7 +3,7 @@
     <!-- Image -->
     <div
         class="relative h-32 sm:h-48 overflow-hidden bg-white flex items-center justify-center border-b border-slate-100">
-        <img [src]="event.coverImageUrl || 'assets/placeholder-event.jpg'" [alt]="event.nameInternal"
+        <img [src]="event.coverImageUrl || 'assets/placeholder-event.jpg'" [alt]="event.aliasPublic"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-logo').style.display='flex';">
         <div class="fallback-logo hidden w-full h-full flex-col items-center justify-center gap-2 p-8"
@@ -31,12 +31,12 @@
     <!-- Content -->
     <div class="p-3 sm:p-4 flex-1 flex flex-col bg-gradient-to-b from-white to-background/30">
         <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1.5 group-hover:text-primary transition-colors line-clamp-2"
-            [title]="event.nameInternal">
-            {{ event.nameInternal }}
+            [title]="event.aliasPublic">
+            {{ event.aliasPublic }}
         </h3>
 
         <p *ngIf="!hideDescription" class="text-slate-500 text-xs sm:text-sm mb-3 line-clamp-1 flex-1">
-            {{ event.descriptionShort }}
+            {{ event.description || event.descriptionShort }}
         </p>
 
         <!-- Next Function Info (without label) -->

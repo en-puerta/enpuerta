@@ -21,6 +21,7 @@ import { AdminFunctionsList } from './components/admin-functions-list/admin-func
 import { AdminFunctionForm } from './components/admin-function-form/admin-function-form';
 import { AdminBookingsList } from './components/admin-bookings-list/admin-bookings-list';
 import { AdminLiveView } from './components/admin-live-view/admin-live-view';
+import { AdminFunctionStats } from './components/admin-function-stats/admin-function-stats';
 import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar';
 import { AdminTopbarComponent } from './components/admin-topbar/admin-topbar';
 import { StatusBadgeComponent } from './components/status-badge/status-badge';
@@ -37,6 +38,7 @@ import { MaintenanceComponent, NotFoundComponent } from '@enpuerta/shared';
     AdminFunctionForm,
     AdminBookingsList,
     AdminLiveView,
+    AdminFunctionStats,
     MaintenanceComponent,
     NotFoundComponent,
     AdminSidebarComponent,

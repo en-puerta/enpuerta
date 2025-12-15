@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-background p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <button (click)="goBack()" class="text-primary hover:text-primary-hover mb-4 flex items-center gap-2">
+            ← Volver a Funciones
+        </button>
+
+        <h1 class="text-2xl font-bold text-slate-900">Estadísticas de Función</h1>
+        <p class="text-sm text-slate-600" *ngIf="function$ | async as func">
+            {{ func.dateTime?.toDate ? (func.dateTime.toDate() | date:'EEEE d MMMM, y - HH:mm':'':'es-AR') :
+            (func.dateTime | date:'EEEE d MMMM, y - HH:mm':'':'es-AR') }} hs
+        </p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div *ngIf="stats$ | async as stats" class="space-y-6">
+
+        <!-- Main Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <!-- Total Bookings -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-slate-600">Total Reservas</span>
+                    <span class="text-2xl">📋</span>
+                </div>
+                <div class="text-3xl font-bold text-slate-900">{{ stats.totalBookings }}</div>
+            </div>
+
+            <!-- Total Attendees -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-slate-600">Total Asistentes</span>
+                    <span class="text-2xl">👥</span>
+                </div>
+                <div class="text-3xl font-bold text-slate-900">{{ stats.totalAttendees }}</div>
+            </div>
+
+            <!-- Capacity Used -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-slate-600">Capacidad Utilizada</span>
+                    <span class="text-2xl">📊</span>
+                </div>
+                <div class="text-3xl font-bold" [ngClass]="{
+            'text-green-600': stats.capacityUsed >= 80,
+            'text-amber-600': stats.capacityUsed >= 50 && stats.capacityUsed < 80,
+            'text-slate-900': stats.capacityUsed < 50
+          }">
+                    {{ stats.capacityUsed | number:'1.0-1' }}%
+                </div>
+            </div>
+
+            <!-- Total Revenue -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-slate-600">Ingresos Totales</span>
+                    <span class="text-2xl">💰</span>
+                </div>
+                <div class="text-3xl font-bold text-green-600">${{ stats.totalRevenue | number:'1.0-0' }}</div>
+            </div>
+
+        </div>
+
+        <!-- Secondary Metrics -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4">Detalles de Reservas</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Average per Booking -->
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                    <span class="text-sm font-medium text-slate-700">Promedio por Reserva</span>
+                    <span class="text-xl font-bold text-slate-900">{{ stats.averagePerBooking | number:'1.1-1' }}
+                        entradas</span>
+                </div>
+
+                <!-- Booking Status Breakdown -->
+                <div class="p-4 bg-slate-50 rounded-lg">
+                    <div class="text-sm font-medium text-slate-700 mb-3">Estado de Reservas</div>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-600">✅ Confirmadas</span>
+                            <span class="font-semibold text-green-600">{{ stats.confirmedBookings }}</span>
+                        </div>
+                        <div class="flex items-center justify-between" *ngIf="stats.pendingBookings > 0">
+                            <span class="text-sm text-slate-600">⏳ Pendientes</span>
+                            <span class="font-semibold text-amber-600">{{ stats.pendingBookings }}</span>
+                        </div>
+                        <div class="flex items-center justify-between" *ngIf="stats.cancelledBookings > 0">
+                            <span class="text-sm text-slate-600">❌ Canceladas</span>
+                            <span class="font-semibold text-red-600">{{ stats.cancelledBookings }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="stats.totalBookings === 0" class="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
+            <p class="text-amber-800 font-medium">📊 No hay reservas para esta función</p>
+            <p class="text-sm text-amber-600 mt-1">Las estadísticas se mostrarán cuando haya reservas registradas.</p>
+        </div>
+
+    </div>
+</div>

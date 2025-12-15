@@ -20,6 +20,7 @@ import { EventListComponent } from './components/event-list/event-list';
 import { FunctionListComponent } from './components/function-list/function-list';
 import { BookingSummaryComponent } from './components/booking-summary/booking-summary';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner';
+import { FooterComponent } from './components/footer/footer';
 
 // Register Spanish locale
 registerLocaleData(localeEs);
@@ -36,7 +37,8 @@ registerLocaleData(localeEs);
     EventListComponent,
     FunctionListComponent,
     BookingSummaryComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,

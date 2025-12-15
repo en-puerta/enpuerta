@@ -1,110 +1,202 @@
 <app-header></app-header>
 
-<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-
+<main class="min-h-screen bg-background">
     <!-- Loading State -->
     <div *ngIf="loading" class="flex justify-center py-20">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div>
     </div>
 
     <!-- Error State -->
-    <div *ngIf="error" class="max-w-md mx-auto text-center bg-white p-8 rounded-xl shadow-sm border border-red-100">
-        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-            <span class="text-red-600 text-2xl">⚠</span>
+    <div *ngIf="error" class="bg-gradient-to-b from-white to-background border-b border-slate-200 pt-12 pb-12 px-6">
+        <div class="max-w-md mx-auto text-center bg-white p-8 rounded-xl shadow-sm border border-red-100">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <span class="text-red-600 text-2xl">⚠</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">Reserva no encontrada</h3>
+            <p class="mt-2 text-slate-500">No pudimos encontrar la información. Verificá el enlace o contactanos.</p>
+            <a routerLink="/"
+                class="mt-6 inline-block bg-slate-900 text-white px-6 py-2 rounded-full font-medium hover:bg-slate-800 transition-colors">Volver
+                al inicio</a>
         </div>
-        <h3 class="text-lg font-bold text-slate-900">Reserva no encontrada</h3>
-        <p class="mt-2 text-slate-500">No pudimos encontrar la información. Verificá el enlace o contactanos.</p>
-        <a routerLink="/"
-            class="mt-6 inline-block bg-slate-900 text-white px-6 py-2 rounded-full font-medium hover:bg-slate-800 transition-colors">Volver
-            al inicio</a>
     </div>
 
-    <div *ngIf="!loading && !error && booking && event && function && organization"
-        class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Success Content -->
+    <div *ngIf="!loading && !error && booking && event && function && organization">
 
-        <!-- Left Column: Success & Instructions -->
-        <div class="space-y-6">
+        <!-- Hero Section with Success Message -->
+        <section class="bg-gradient-to-b from-white to-background border-b border-slate-200 pt-12 pb-8 px-6">
+            <div class="max-w-4xl mx-auto">
+                <!-- Success Message with Animation -->
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm border border-primary/20 bg-[rgb(var(--color-background))]/30 relative overflow-hidden">
 
-            <!-- Success Message -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-green-200 bg-green-50/50">
-                <div class="flex items-center gap-4 mb-2">
-                    <div class="bg-green-100 p-2 rounded-full text-green-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                            stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                        </svg>
+                    <!-- Confetti Animation -->
+                    <div class="confetti-container">
+                        <div class="confetti">🎉</div>
+                        <div class="confetti">🎊</div>
+                        <div class="confetti">✨</div>
+                        <div class="confetti">🎉</div>
+                        <div class="confetti">🎊</div>
                     </div>
-                    <h2 class="text-xl font-bold text-green-800">¡Reserva Creada!</h2>
-                </div>
-                <p class="text-green-700 ml-12">
-                    Solo falta un paso. Realizá el pago para recibir tus entradas.
-                </p>
-            </div>
 
-            <!-- Payment Instructions -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
-                    <h3 class="font-bold text-slate-800">Instrucciones de Pago</h3>
-                </div>
-                <div class="p-6 space-y-6">
-
-                    <!-- Step 1 -->
-                    <div class="flex gap-4">
-                        <div
-                            class="flex-shrink-0 w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">
-                            1</div>
-                        <div class="flex-1">
-                            <p class="font-medium text-slate-900 mb-2">Transferí el total a esta cuenta:</p>
-                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm space-y-1">
-                                <p class="flex justify-between"><span class="text-slate-500">Alias:</span> <span
-                                        class="font-mono font-bold text-slate-800 select-all">{{
-                                        event.bankInfo?.alias }}</span></p>
-                                <p class="flex justify-between"><span class="text-slate-500">CBU:</span> <span
-                                        class="font-mono text-slate-800 select-all">{{ event.bankInfo?.cbu
-                                        }}</span></p>
-                                <p class="flex justify-between"><span class="text-slate-500">Titular:</span> <span
-                                        class="text-slate-800">{{ event.bankInfo?.titular }}</span></p>
-                                <p class="flex justify-between"><span class="text-slate-500">Monto:</span> <span
-                                        class="font-bold text-slate-900">{{ function?.price | currency: 'ARS' :
-                                        'symbol-narrow' : '1.0-0' }}</span></p>
-                            </div>
+                    <div class="flex items-start gap-4 mb-2 relative z-10">
+                        <div class="bg-green-100 p-2 rounded-full text-green-600 animate-bounce">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
                         </div>
-                    </div>
-
-                    <!-- Step 2 -->
-                    <div class="flex gap-4">
-                        <div
-                            class="flex-shrink-0 w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">
-                            2</div>
-                        <div class="flex-1">
-                            <p class="font-medium text-slate-900 mb-2">Enviá el comprobante por WhatsApp</p>
-                            <a [href]="'https://wa.me/' + event.bankInfo?.telefonoComprobantes + '?text=Hola, envío comprobante de reserva para ' + event.nameInternal + ' a nombre de ' + booking.customerName"
-                                target="_blank"
-                                class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm w-full justification-center sm:w-auto">
-                                <svg fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
-                                    <path
-                                        d="M.057 24l1.687-6.163c-3.138-5.442.339-11.601 5.946-12.228 5.607-.626 11.233 4.468 10.607 10.075-.627 5.607-6.786 9.084-12.228 5.946l-6.012 2.37zm3.763-15.819c-3.138 5.442.339 11.601 5.946 12.228 5.607.626 11.233-4.468 10.607-10.075.626-5.607-6.786-9.084-12.228-5.946-1.567-.881-3.35-.615-4.325.266z" />
-                                </svg>
-                                Enviar Comprobante
-                            </a>
-                            <p class="text-xs text-slate-500 mt-2">
-                                Te enviaremos tus entradas con el código QR por ese medio.
+                        <div>
+                            <h2 class="text-xl font-bold text-primary mb-1">¡Reserva Confirmada!</h2>
+                            <p class="text-slate-600 text-sm">
+                                Solo falta un paso. Realizá el pago para recibir tus entradas.
                             </p>
                         </div>
                     </div>
 
+                    <!-- Add to Calendar Button -->
+                    <button (click)="addToCalendar()"
+                        class="inline-flex items-center gap-2 bg-white hover:bg-primary/5 text-primary px-4 py-2 rounded-lg font-medium transition-colors text-sm border border-primary/30 relative z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Agregar al calendario
+                    </button>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Right Column: Summary -->
-        <div>
-            <app-booking-summary [booking]="booking" [event]="event" [function]="function"></app-booking-summary>
+        <!-- Content Section with Payment Instructions -->
+        <section class="bg-background py-8 px-6">
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
 
-            <div class="mt-6 text-center">
-                <a routerLink="/" class="text-sm font-medium text-amber-600 hover:text-amber-500">Volver al inicio</a>
+                <!-- Left Column: Payment Instructions -->
+                <div>
+                    <!-- Payment Instructions -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+                            <h3 class="font-bold text-slate-800">Instrucciones de Pago</h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+
+                            <!-- BANK TRANSFER METHOD (when bankInfo exists) -->
+                            <ng-container *ngIf="!isDirectContact && event.bankInfo">
+                                <!-- Step 1: Transfer -->
+                                <div class="flex gap-4">
+                                    <div
+                                        class="flex-shrink-0 w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">
+                                        1</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-slate-900 mb-2">Transferí el total a esta cuenta:</p>
+                                        <div
+                                            class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm space-y-1">
+                                            <p class="flex justify-between"><span class="text-slate-500">Alias:</span>
+                                                <span class="font-mono font-bold text-slate-800 select-all">{{
+                                                    event.bankInfo?.alias }}</span>
+                                            </p>
+                                            <p class="flex justify-between"><span class="text-slate-500">CBU:</span>
+                                                <span class="font-mono text-slate-800 select-all">{{ event.bankInfo?.cbu
+                                                    }}</span>
+                                            </p>
+                                            <p class="flex justify-between"><span class="text-slate-500">Titular:</span>
+                                                <span class="text-slate-800">{{ event.bankInfo?.titular }}</span>
+                                            </p>
+                                            <p class="flex justify-between"><span class="text-slate-500">Monto:</span>
+                                                <span class="font-bold text-slate-900">${{ ((function?.price || 0) *
+                                                    (booking?.quantity ||
+                                                    0)) | number:'1.0-0' }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Send Receipt -->
+                                <div class="flex gap-4">
+                                    <div
+                                        class="flex-shrink-0 w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">
+                                        2</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-slate-900 mb-2">Enviá el comprobante por WhatsApp</p>
+                                        <a [href]="'https://wa.me/' + paymentContactPhone + '?text=' + encodeURIComponent(getWhatsAppMessage())"
+                                            target="_blank"
+                                            class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm w-full sm:w-auto">
+                                            <svg fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+                                                <path
+                                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                                            </svg>
+                                            Enviar Comprobante
+                                        </a>
+                                        <p class="text-xs text-slate-500 mt-2">
+                                            Te enviaremos tus entradas con el código QR por ese medio.
+                                        </p>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <!-- DIRECT CONTACT METHOD (when bankInfo doesn't exist) -->
+                            <ng-container *ngIf="isDirectContact">
+                                <div class="flex gap-4">
+                                    <div
+                                        class="flex-shrink-0 w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center text-2xl">
+                                        💬</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-slate-900 mb-2">Contactate con el organizador para
+                                            realizar
+                                            el pago</p>
+                                        <p class="text-sm text-slate-600 mb-4">
+                                            Enviá un mensaje por WhatsApp para coordinar el pago y recibir tus entradas.
+                                        </p>
+
+                                        <!-- Payment Summary -->
+                                        <div
+                                            class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm space-y-1 mb-4">
+                                            <p class="flex justify-between"><span
+                                                    class="text-slate-500">Cantidad:</span>
+                                                <span class="font-medium text-slate-800">{{ booking?.quantity }}
+                                                    entrada{{
+                                                    (booking?.quantity || 0) > 1 ? 's' : '' }}</span>
+                                            </p>
+                                            <p class="flex justify-between"><span class="text-slate-500">Total a
+                                                    pagar:</span>
+                                                <span class="font-bold text-slate-900">${{ ((function?.price || 0) *
+                                                    (booking?.quantity
+                                                    || 0)) | number:'1.0-0' }}</span>
+                                            </p>
+                                        </div>
+
+                                        <a [href]="'https://wa.me/' + paymentContactPhone + '?text=' + encodeURIComponent(getWhatsAppMessage())"
+                                            target="_blank"
+                                            class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm w-full sm:w-auto">
+                                            <svg fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+                                                <path
+                                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                                            </svg>
+                                            Contactar por WhatsApp
+                                        </a>
+                                        <p class="text-xs text-slate-500 mt-2">
+                                            El organizador te responderá para coordinar el pago y enviarte tus entradas.
+                                        </p>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Summary -->
+                <div>
+                    <app-booking-summary [booking]="booking" [event]="event"
+                        [function]="function"></app-booking-summary>
+
+                    <div class="mt-6 text-center">
+                        <a routerLink="/" class="text-sm font-medium text-amber-600 hover:text-amber-500">Volver al
+                            inicio</a>
+                    </div>
+                </div>
+
             </div>
-        </div>
-
+        </section>
     </div>
-</div>
+</main>

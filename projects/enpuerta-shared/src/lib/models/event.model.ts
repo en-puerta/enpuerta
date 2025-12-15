@@ -27,4 +27,8 @@ export interface Event {
         titular: string;
         telefonoComprobantes: string;
     };
+    contactInfo?: {
+        contactName: string;
+        contactPhone: string;
+    };
 }

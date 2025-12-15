@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Event, Function } from '@enpuerta/shared';
+import { Event, Function as EventFunction } from '@enpuerta/shared';
 
 @Component({
   selector: 'app-event-card',
@@ -9,7 +9,8 @@ import { Event, Function } from '@enpuerta/shared';
 })
 export class EventCardComponent {
   @Input() event!: Event;
-  @Input() nextFunction: Function | null | undefined;
+  @Input() nextFunction: EventFunction | null | undefined;
   @Input() functionsCount: number = 0;
   @Input() isSoldOut: boolean = false;
+  @Input() hideDescription: boolean = false;
 }

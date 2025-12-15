@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, ChangeDetectorRef, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Event, Function, FunctionService, BookingService } from '@enpuerta/shared';
 import { combineLatest, map, shareReplay, Subscription } from 'rxjs';
 
@@ -11,6 +11,7 @@ import { combineLatest, map, shareReplay, Subscription } from 'rxjs';
 export class EventListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() events: Event[] = [];
   @Input() carousel: boolean = false;
+  @ViewChild('carouselContainer') carouselContainer?: ElementRef;
 
   eventFunctions: Map<string, { nextFunction: Function | null, count: number, isSoldOut: boolean }> = new Map();
   private subscriptions: Subscription[] = [];
@@ -88,5 +89,18 @@ export class EventListComponent implements OnInit, OnChanges, OnDestroy {
 
   getFunctionData(eventId: string) {
     return this.eventFunctions.get(eventId) ?? { nextFunction: null, count: 0, isSoldOut: false };
+  }
+
+  scrollCarousel(direction: 'left' | 'right'): void {
+    if (!this.carouselContainer) return;
+
+    const container = this.carouselContainer.nativeElement;
+    const scrollAmount = container.offsetWidth * 0.7; // Scroll by 70% of container width
+
+    if (direction === 'left') {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
   }
 }

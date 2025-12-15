@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService, FunctionService, BookingService, Event, Function, Booking } from '@enpuerta/shared';
 import { combineLatest, switchMap, take, map, of } from 'rxjs';
+import { RecaptchaService } from '../../services/recaptcha.service';
 
 @Component({
   selector: 'app-booking-form',
@@ -26,15 +27,40 @@ export class BookingFormComponent implements OnInit {
     private eventService: EventService,
     private functionService: FunctionService,
     private bookingService: BookingService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private recaptchaService: RecaptchaService
   ) {
     this.bookingForm = this.fb.group({
-      customerName: ['', Validators.required],
-      customerPhone: [''],
-      customerEmail: ['', [Validators.email]],
-      quantity: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
+      customerName: ['', [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(100),
+        Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/) // Solo letras y espacios
+      ]],
+      customerPhone: ['', [this.phoneValidator]],
+      customerEmail: ['', [
+        Validators.required,
+        Validators.email,
+        Validators.pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i) // Email más estricto
+      ]],
+      quantity: [1, [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(5) // Máximo 5 entradas (reducido de 10 para prevenir spam)
+      ]],
       acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.contactInfoValidator });
+  }
+
+  phoneValidator(control: any): any {
+    if (!control.value) return null; // Optional field
+
+    const phone = control.value.replace(/\s/g, ''); // Remove spaces
+
+    // Accept formats: 3512345678, 543512345678, +543512345678
+    const phoneRegex = /^(\+?54)?[1-9]\d{9,10}$/;
+
+    return phoneRegex.test(phone) ? null : { invalidPhone: true };
   }
 
   contactInfoValidator(group: FormGroup): any {
@@ -104,23 +130,42 @@ export class BookingFormComponent implements OnInit {
     });
   }
 
-  async onSubmit(): Promise<void> {
-    if (this.bookingForm.invalid) return;
+  async onSubmit() {
+    if (this.bookingForm.invalid || this.submitting) {
+      return;
+    }
 
     this.submitting = true;
     this.errorMessage = '';
     this.cdr.detectChanges();
 
     try {
-      if (!this.event || !this.function) throw new Error('Datos incompletos');
+      // Validate with reCAPTCHA v3 (invisible)
+      const recaptchaToken = await this.recaptchaService.execute('booking');
+      if (!recaptchaToken) {
+        throw new Error('Error de verificación de seguridad. Por favor intentá de nuevo.');
+      }
 
-      // Double check availability (simple check, ideal would be transaction)
-      // We are trusting the optimized optimistic UI for now or we would re-fetch.
-      // For this demo, let's proceed.
+      if (!this.event || !this.function) {
+        throw new Error('Datos incompletos');
+      }
+
+      // Re-fetch bookings to get real-time capacity (prevent race conditions)
+      const currentBookings = await this.bookingService.getBookings(this.event.eventId, this.function.functionId)
+        .pipe(take(1))
+        .toPromise();
+
+      const bookedSeats = currentBookings?.reduce((sum, b) => {
+        return b.status !== 'cancelled' ? sum + b.quantity : sum;
+      }, 0) || 0;
+
+      const realTimeAvailableCapacity = this.function.capacity - bookedSeats;
 
       const formVal = this.bookingForm.value;
-      if (formVal.quantity > this.availableCapacity) {
-        throw new Error('No hay suficientes cupos disponibles.');
+
+      // Validate against real-time capacity
+      if (formVal.quantity > realTimeAvailableCapacity) {
+        throw new Error(`Lo sentimos, solo quedan ${realTimeAvailableCapacity} lugares disponibles. Por favor ajustá la cantidad.`);
       }
 
       const booking = {
@@ -141,13 +186,28 @@ export class BookingFormComponent implements OnInit {
       const docRef = await this.bookingService.createBooking(this.event.eventId, this.function.functionId, booking);
       console.log('Booking created with ID:', docRef.id);
 
-      await this.router.navigate(['/booking', this.event.eventId, this.function.functionId, docRef.id, 'confirmed']);
+      // Reset submitting BEFORE navigation to prevent infinite loading
+      this.submitting = false;
+      this.cdr.detectChanges();
+
+      // Navigate to confirmation page
+      console.log('Navigating to confirmation...');
+      try {
+        const navigationResult = await this.router.navigate(['/booking', this.event.eventId, this.function.functionId, docRef.id, 'confirmed']);
+        console.log('Navigation result:', navigationResult);
+
+        if (!navigationResult) {
+          console.error('Navigation failed!');
+          this.errorMessage = 'Reserva creada pero hubo un error al mostrar la confirmación. Revisá tu email.';
+        }
+      } catch (navError) {
+        console.error('Navigation error:', navError);
+        this.errorMessage = 'Reserva creada pero hubo un error al mostrar la confirmación. Revisá tu email.';
+      }
 
     } catch (error: any) {
       console.error('Error creating booking', error);
       this.errorMessage = error.message || 'Error al procesar la reserva. Por favor intentá de nuevo.';
-      this.cdr.detectChanges();
-    } finally {
       this.submitting = false;
       this.cdr.detectChanges();
     }

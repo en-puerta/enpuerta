@@ -1,0 +1,38 @@
+<footer class="bg-slate-900 text-white mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <!-- Brand -->
+            <div class="text-center md:text-left">
+                <h3 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4">EnPuerta</h3>
+                <p class="text-slate-400 text-xs sm:text-sm">
+                    Tu plataforma para descubrir y reservar eventos en vivo.
+                </p>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="md:col-span-2">
+                <h4 class="font-bold mb-2 sm:mb-3 text-sm sm:text-base text-center md:text-left">Recibí novedades</h4>
+                <p class="text-slate-400 text-xs sm:text-sm mb-3 sm:mb-4 text-center md:text-left">
+                    Suscribite para enterarte de nuevos eventos y promociones.
+                </p>
+                <form (ngSubmit)="onSubscribe()" class="flex flex-col sm:flex-row gap-2">
+                    <input type="email" [(ngModel)]="email" name="email" placeholder="tu@email.com" required
+                        class="flex-1 px-3 sm:px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary">
+                    <button type="submit" [disabled]="subscribed"
+                        class="px-4 sm:px-6 py-2 bg-primary hover:bg-primary-hover disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
+                        {{ subscribed ? '✓ Suscripto' : 'Suscribirme' }}
+                    </button>
+                </form>
+                <p *ngIf="subscribeMessage" class="text-xs sm:text-sm mt-2 text-center md:text-left"
+                    [ngClass]="subscribeError ? 'text-red-400' : 'text-green-400'">
+                    {{ subscribeMessage }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Bottom -->
+        <div class="border-t border-slate-800 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-slate-400 text-xs sm:text-sm">
+            <p>&copy; {{ currentYear }} EnPuerta. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>

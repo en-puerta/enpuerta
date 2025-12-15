@@ -90,6 +90,20 @@ export class AdminFunctionStats implements OnInit {
         };
     }
 
+    isSuccessfulEvent(stats: FunctionStats, func: EventFunction | null): boolean {
+        if (!func || !stats) return false;
+
+        const occupancyRate = stats.capacityUsed;
+        const confirmationRate = stats.totalBookings > 0
+            ? (stats.confirmedBookings / stats.totalBookings) * 100
+            : 0;
+        const revenue = stats.totalRevenue;
+
+        return occupancyRate > 70 ||
+            confirmationRate > 80 ||
+            (revenue > 0 && revenue > 50000);
+    }
+
     goBack() {
         this.router.navigate(['/events', this.eventId, 'functions']);
     }

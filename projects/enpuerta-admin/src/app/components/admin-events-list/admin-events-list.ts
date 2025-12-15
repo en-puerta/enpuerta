@@ -32,13 +32,26 @@ export class AdminEventsList implements OnInit {
     direction: 'asc'
   });
 
+  // Cafecito banner
+  cafecitoHidden = false;
+  currentYear = new Date().getFullYear();
+
   constructor(
     private eventService: EventService,
     private authService: AuthService,
     private router: Router
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
+    // Check if Cafecito banner was dismissed
+    const dismissed = localStorage.getItem('cafecitoDismissed');
+    const dismissedDate = localStorage.getItem('cafecitoDismissedDate');
+
+    if (dismissed && dismissedDate) {
+      const daysSinceDismissal = (Date.now() - parseInt(dismissedDate)) / (1000 * 60 * 60 * 24);
+      this.cafecitoHidden = daysSinceDismissal < 7; // Show again after 7 days
+    }
+
     // Get events for current organization using switchMap to flatten observables
     this.events$ = this.authService.currentOrganizationId$.pipe(
       switchMap(orgId => {
@@ -175,5 +188,11 @@ export class AdminEventsList implements OnInit {
       console.error('Error finalizing event:', error);
       alert('Hubo un error al finalizar el evento. Por favor intentá de nuevo.');
     }
+  }
+
+  hideCafecito(): void {
+    this.cafecitoHidden = true;
+    localStorage.setItem('cafecitoDismissed', 'true');
+    localStorage.setItem('cafecitoDismissedDate', Date.now().toString());
   }
 }

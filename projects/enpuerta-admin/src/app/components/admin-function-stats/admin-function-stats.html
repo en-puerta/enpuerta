@@ -62,6 +62,42 @@
 
         </div>
 
+        <!-- Success Message with Cafecito -->
+        <div *ngIf="(function$ | async) as func">
+            <div *ngIf="isSuccessfulEvent(stats, func)"
+                class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+                <div class="flex items-start gap-4">
+                    <div class="text-4xl">🎉</div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-green-900 mb-2">
+                            ¡Excelente resultado!
+                        </h3>
+                        <p class="text-sm text-green-800 mb-3">
+                            Tu evento tuvo un <strong>{{ stats.capacityUsed | number:'1.0-1' }}% de ocupación</strong>
+                            <span *ngIf="stats.totalBookings > 0">
+                                y <strong>{{ (stats.confirmedBookings / stats.totalBookings * 100) | number:'1.0-1' }}%
+                                    de confirmación</strong>
+                            </span>.
+                            ¡Felicitaciones! 🎊
+                        </p>
+                        <div class="bg-white/50 rounded-lg p-4 mb-4">
+                            <p class="text-sm text-green-700 mb-3">
+                                Si EnPuerta te ayudó a lograr este resultado, considerá apoyar el proyecto:
+                            </p>
+                            <div class="flex items-center gap-3">
+                                <a href="https://cafecito.app/enpuerta" target="_blank" rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                    <span>☕</span>
+                                    <span>Invitar un cafecito</span>
+                                </a>
+                                <span class="text-xs text-green-600">Monto sugerido: $5.000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Secondary Metrics -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
             <h2 class="text-lg font-semibold text-slate-900 mb-4">Detalles de Reservas</h2>

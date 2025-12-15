@@ -1,10 +1,11 @@
-<div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200 flex flex-col h-full group"
-    [ngClass]="{'opacity-75': isSoldOut}">
+<a [routerLink]="['/e', event.aliasPublic]"
+    class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200 flex flex-col h-full group block cursor-pointer">
     <!-- Image -->
     <div
         class="relative h-32 sm:h-48 overflow-hidden bg-white flex items-center justify-center border-b border-slate-100">
         <img [src]="event.coverImageUrl || 'assets/placeholder-event.jpg'" [alt]="event.aliasPublic"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            [ngClass]="{'grayscale': isSoldOut}"
             onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-logo').style.display='flex';">
         <div class="fallback-logo hidden w-full h-full flex-col items-center justify-center gap-2 p-8"
             style="display:none;">
@@ -19,12 +20,12 @@
             </span>
         </div>
 
-        <!-- Sold Out Badge -->
-        <div *ngIf="isSoldOut" class="absolute top-2 right-2">
-            <span
-                class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow-lg">
+        <!-- Sold Out Diagonal Banner -->
+        <div *ngIf="isSoldOut" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div
+                class="bg-red-600 text-white font-black text-lg sm:text-2xl px-12 py-2 rotate-[-15deg] shadow-2xl uppercase tracking-wider">
                 Agotado
-            </span>
+            </div>
         </div>
     </div>
 
@@ -53,7 +54,7 @@
                                 d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                         </svg>
                         <span class="text-[10px] sm:text-xs font-medium text-slate-600">
-                            {{ nextFunction.dateTime | date: 'dd/MM' }}
+                            {{ nextFunction.dateTime | date: 'dd/MM HH:mm' }}
                         </span>
                     </div>
 
@@ -105,16 +106,5 @@
             </svg>
             <span class="line-clamp-1">{{ event.locationAddress }}</span>
         </div>
-
-        <!-- Action -->
-        <a [routerLink]="['/e', event.aliasPublic]" *ngIf="!isSoldOut"
-            class="block w-full text-center bg-primary hover:bg-primary-hover text-white font-semibold py-2.5 rounded-lg transition-colors shadow-sm mt-3">
-            Ver detalle
-        </a>
-
-        <div *ngIf="isSoldOut"
-            class="block w-full text-center bg-slate-400 text-white font-semibold py-2.5 rounded-lg cursor-not-allowed mt-3">
-            Agotado
-        </div>
     </div>
-</div>
+</a>

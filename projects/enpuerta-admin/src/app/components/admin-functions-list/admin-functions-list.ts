@@ -58,6 +58,10 @@ export class AdminFunctionsList implements OnInit {
     this.router.navigate(['/events', this.eventId, 'functions', functionId, 'stats']);
   }
 
+  isClosedForBooking(func: Function): boolean {
+    return this.functionService.isClosedForBooking(func);
+  }
+
   async cancelFunction(func: Function) {
     if (confirm(`¿Estás seguro que querés cancelar la función del ${func.dateTime}?`)) {
       try {

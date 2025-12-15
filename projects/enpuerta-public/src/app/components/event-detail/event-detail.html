@@ -14,11 +14,22 @@
     <div class="relative h-[400px] w-full bg-white overflow-hidden flex items-center justify-center">
         <img [src]="event.coverImageUrl || 'assets/placeholder-event.jpg'" [alt]="event.aliasPublic"
             class="w-full h-full object-cover opacity-70"
+            [ngClass]="{'grayscale': isSoldOut((functions$ | async) || [])}"
             onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-logo').style.display='flex';">
         <div class="fallback-logo hidden flex-col items-center justify-center absolute inset-0" style="display:none;">
             <img src="assets/images/logo-icon.jpg" alt="EnPuerta" class="h-32 w-32 object-contain opacity-20">
         </div>
+
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
+
+        <!-- Sold Out Diagonal Banner (AFTER gradient so it's on top) -->
+        <div *ngIf="isSoldOut((functions$ | async) || [])"
+            class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+            <div
+                class="bg-red-600 text-white font-black text-4xl sm:text-6xl px-20 py-4 rotate-[-15deg] shadow-2xl uppercase tracking-wider">
+                Agotado
+            </div>
+        </div>
 
         <div class="absolute bottom-0 left-0 right-0 max-w-6xl mx-auto px-6 pb-12">
             <div class="flex flex-col gap-4">
@@ -225,13 +236,40 @@
                                 </div>
                             </div>
 
+                            <!-- Warning message when closed for booking -->
+                            <div *ngIf="isClosedForBooking(functions[0])"
+                                class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm mb-3">
+                                <p class="font-semibold">{{ getClosedMessage(functions[0]) }}</p>
+                            </div>
+
+                            <!-- Countdown timer (if approaching close time) -->
+                            <p *ngIf="functions[0] | timeUntilClose as countdown"
+                                class="text-sm text-amber-600 font-medium mb-3 flex items-center gap-2">
+                                <span>⏰</span>
+                                {{ countdown }}
+                            </p>
+
+                            <!-- WhatsApp Contact Button (when closed for booking) -->
+                            <a *ngIf="isClosedForBooking(functions[0]) && getWhatsAppLink(event)"
+                                [href]="getWhatsAppLink(event)" target="_blank"
+                                class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                                </svg>
+                                Avisar al organizador
+                            </a>
+
+                            <!-- Normal Reservation Button (when open) -->
                             <a [routerLink]="['/e', event.aliasPublic, 'f', functions[0].functionId, 'booking']"
-                                *ngIf="(functions[0].availableCapacity ?? functions[0].capacity) > 0"
+                                *ngIf="!isClosedForBooking(functions[0]) && (functions[0].availableCapacity ?? functions[0].capacity) > 0"
                                 class="block w-full text-center bg-primary hover:bg-primary-hover text-white font-bold py-3 rounded-lg transition-colors shadow-sm">
                                 Reservar ahora
                             </a>
 
-                            <div *ngIf="(functions[0].availableCapacity ?? functions[0].capacity) === 0"
+                            <!-- Sold Out (when capacity is 0) -->
+                            <div *ngIf="!isClosedForBooking(functions[0]) && (functions[0].availableCapacity ?? functions[0].capacity) === 0"
                                 class="block w-full text-center bg-red-700 text-white font-bold py-3 rounded-lg cursor-not-allowed">
                                 Agotado
                             </div>
@@ -244,8 +282,8 @@
                             </h3>
 
                             <!-- Function List Component -->
-                            <app-function-list [functions]="functions"
-                                [eventAlias]="event.aliasPublic || ''"></app-function-list>
+                            <app-function-list [functions]="functions" [eventAlias]="event.aliasPublic || ''"
+                                [event]="event"></app-function-list>
                         </div>
 
                         <!-- No Functions Available -->

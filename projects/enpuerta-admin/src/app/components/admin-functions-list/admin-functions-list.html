@@ -52,6 +52,11 @@
                     <span class="font-semibold text-slate-900 ml-1">${{ func.price }}</span>
                 </div>
                 <app-status-badge [status]="func.status"></app-status-badge>
+                <!-- Auto-close indicator -->
+                <span *ngIf="isClosedForBooking(func) && func.status === 'open'"
+                    class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full whitespace-nowrap">
+                    ⏰ Auto-cerrado
+                </span>
             </div>
 
             <!-- Actions -->
@@ -114,7 +119,15 @@
                     <td class="px-4 py-3 text-slate-600">{{ func.capacity }}</td>
                     <td class="px-4 py-3 font-medium text-slate-900">${{ func.price }}</td>
                     <td class="px-4 py-3">
-                        <app-status-badge [status]="func.status"></app-status-badge>
+                        <div class="flex items-center gap-2">
+                            <app-status-badge [status]="func.status"></app-status-badge>
+                            <!-- Auto-close indicator -->
+                            <span *ngIf="isClosedForBooking(func) && func.status === 'open'"
+                                class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full whitespace-nowrap"
+                                title="Cerrado automáticamente por proximidad al horario">
+                                ⏰ Auto-cerrado
+                            </span>
+                        </div>
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-2">

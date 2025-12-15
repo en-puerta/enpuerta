@@ -33,7 +33,7 @@
 </div>
 
 <!-- Grid Mode (for all events) -->
-<div *ngIf="!carousel" class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+<div *ngIf="!carousel" class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
     <div *ngFor="let event of events">
         <app-event-card [event]="event" [nextFunction]="getFunctionData(event.eventId).nextFunction"
             [functionsCount]="getFunctionData(event.eventId).count"

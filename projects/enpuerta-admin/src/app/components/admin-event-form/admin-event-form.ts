@@ -382,7 +382,7 @@ export class AdminEventForm implements OnInit, AfterViewInit {
             dateTime: functionDateTime,
             capacity: formValue.defaultCapacity || 100,
             price: formValue.defaultPrice || 0,
-            autoCloseMinutesBefore: formValue.functionAutoClose || 30,
+            autoCloseMinutesBefore: formValue.functionAutoClose || 15,
             status: 'open' as const,
             organizationId: this.organizationId
           };

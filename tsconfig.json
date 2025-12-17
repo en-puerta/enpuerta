@@ -57,6 +57,12 @@
     },
     {
       "path": "./projects/enpuerta-checkin/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/enpuerta-landing/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/enpuerta-landing/tsconfig.spec.json"
     }
   ]
 }
